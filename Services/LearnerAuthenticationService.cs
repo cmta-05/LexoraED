@@ -67,8 +67,9 @@ public class LearnerAuthenticationService
         string username,
         string password)
     {
+        var normalizedUsername = username.Trim();
         var learner = await _context.Learners
-            .FirstOrDefaultAsync(l => l.Username == username);
+            .FirstOrDefaultAsync(l => l.Username.ToLower() == normalizedUsername.ToLower());
 
         if (learner == null || !learner.IsActive)
         {

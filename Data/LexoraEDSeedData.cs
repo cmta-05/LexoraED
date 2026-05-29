@@ -15,7 +15,9 @@ public static class LexoraEDSeedData
             FullName = "LexoraED Administrator",
             Username = "admin",
             PasswordHash = LearnerCredentialHasher.HashPassword("Admin@123"),
-            Role = LearnerRole.Admin
+            Role = LearnerRole.Admin,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
         };
 
         var teacher = new Learner
@@ -23,7 +25,9 @@ public static class LexoraEDSeedData
             FullName = "Sample Teacher",
             Username = "teacher",
             PasswordHash = LearnerCredentialHasher.HashPassword("Teacher@123"),
-            Role = LearnerRole.Teacher
+            Role = LearnerRole.Teacher,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
         };
 
         var student = new Learner
@@ -31,7 +35,9 @@ public static class LexoraEDSeedData
             FullName = "Sample Student",
             Username = "student",
             PasswordHash = LearnerCredentialHasher.HashPassword("Student@123"),
-            Role = LearnerRole.Student
+            Role = LearnerRole.Student,
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
         };
 
         context.Learners.AddRange(admin, teacher, student);
