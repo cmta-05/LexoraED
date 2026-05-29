@@ -1,0 +1,28 @@
+@model DifficultyTierViewModel
+
+<section class="lex-tier @(Model.IsUnlocked ? "" : "locked")">
+    <div class="lex-tier-header">
+        <h2 class="lex-tier-title">@Model.Level Level</h2>
+        @if (Model.IsCurrentTier)
+        {
+            <span class="lex-badge lex-badge-recommended">Your current path</span>
+        }
+        @if (!Model.IsUnlocked)
+        {
+            <span class="lex-badge" style="background:#f3f4f6;color:#6b7280;">🔒 Locked</span>
+        }
+    </div>
+    @if (Model.Modules.Any())
+    {
+        <div class="lex-module-grid">
+            @foreach (var module in Model.Modules)
+            {
+                <partial name="_ModuleCard" model="module" />
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted" style="color: var(--lex-text-muted);">No modules at this level yet.</p>
+    }
+</section>

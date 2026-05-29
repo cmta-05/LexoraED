@@ -1,0 +1,21 @@
+@model LearningModuleFormViewModel
+@{
+    ViewData["Title"] = "Create Module";
+}
+
+<a asp-action="Index" class="lex-btn lex-btn-ghost lex-btn-sm" style="margin-bottom: 1rem;">← Back</a>
+
+<div class="lex-panel" style="max-width: 640px;">
+    <h2 class="lex-panel-title">New Learning Module</h2>
+    <form asp-action="Create" method="post">
+        <partial name="_LearningModuleFormLexora" model="Model" />
+        <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+            <button type="submit" class="lex-btn lex-btn-primary">Create Module</button>
+            <a asp-action="Index" class="lex-btn lex-btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

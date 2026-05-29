@@ -1,0 +1,33 @@
+@model IEnumerable<LearningModule>
+@{
+    ViewData["Title"] = "Learning Modules";
+}
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+    <p style="color: var(--lex-text-muted); margin: 0;">Manage LexoraED curriculum content.</p>
+    <a asp-action="Create" class="lex-btn lex-btn-primary">Add Module</a>
+</div>
+
+@foreach (var module in Model)
+{
+    <div class="lex-admin-card">
+        <div>
+            <div class="lex-badge-row" style="margin-bottom: 0.5rem;">
+                <span class="lex-badge lex-badge-category">@module.Category</span>
+                <span class="lex-badge lex-badge-easy">@module.DifficultyLevel</span>
+            </div>
+            <strong style="font-size: 1.05rem;">@module.Title</strong>
+            <p style="margin: 0.35rem 0 0; color: var(--lex-text-muted); font-size: 0.85rem;">
+                @module.QuizSets.Count quiz set(s)
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            <a asp-action="Edit" asp-route-id="@module.Id" class="lex-btn lex-btn-secondary lex-btn-sm">Edit</a>
+            <form asp-action="Delete" asp-route-id="@module.Id" method="post"
+                  onsubmit="return confirm('Delete this module?');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="lex-btn lex-btn-ghost lex-btn-sm" style="color: var(--lex-rose);">Delete</button>
+            </form>
+        </div>
+    </div>
+}

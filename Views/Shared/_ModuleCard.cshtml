@@ -1,0 +1,66 @@
+@model LearningModuleCardViewModel
+
+@{
+    var levelClass = Model.DifficultyLevel switch
+    {
+        DifficultyLevel.Easy => "lex-badge-easy",
+        DifficultyLevel.Medium => "lex-badge-medium",
+        DifficultyLevel.Hard => "lex-badge-hard",
+        _ => ""
+    };
+    var cardClass = "lex-module-card";
+    if (Model.IsLocked) cardClass += " locked";
+    if (Model.IsCompleted) cardClass += " completed";
+    if (Model.IsRecommended) cardClass += " recommended";
+}
+
+<article class="@cardClass">
+    <div class="lex-badge-row">
+        <span class="lex-badge lex-badge-category">@Model.Category</span>
+        <span class="lex-badge @levelClass">@Model.DifficultyLevel</span>
+        @if (Model.IsRecommended)
+        {
+            <span class="lex-badge lex-badge-recommended">Recommended</span>
+        }
+        @if (Model.IsCompleted)
+        {
+            <span class="lex-badge lex-badge-completed">Completed</span>
+        }
+        @if (Model.IsLocked)
+        {
+            <span class="lex-badge" style="background:#f3f4f6;color:#6b7280;">Locked</span>
+        }
+    </div>
+    <h3 class="lex-module-title">@Model.Title</h3>
+    <p class="lex-module-desc">@Model.Description</p>
+    <div class="lex-progress-label">
+        @if (Model.IsCompleted)
+        {
+            <span>Mastery achieved</span>
+        }
+        else if (Model.ProgressPercent > 0)
+        {
+            <span>Best score: @Model.ProgressPercent%</span>
+        }
+        else
+        {
+            <span>Not started</span>
+        }
+    </div>
+    <div class="lex-progress-bar">
+        <div class="lex-progress-fill" style="width: @(Model.IsCompleted ? 100 : Model.ProgressPercent)%"></div>
+    </div>
+    @if (!Model.IsLocked)
+    {
+        <a asp-controller="StudentLearning" asp-action="StudyModule" asp-route-id="@Model.Id"
+           class="lex-btn lex-btn-primary lex-btn-block">
+            Start Learning
+        </a>
+    }
+    else
+    {
+        <button type="button" class="lex-btn lex-btn-ghost lex-btn-block" disabled>
+            Locked — advance your path
+        </button>
+    }
+</article>

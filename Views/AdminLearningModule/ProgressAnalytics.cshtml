@@ -1,0 +1,65 @@
+@model AdminProgressAnalyticsViewModel
+@{
+    ViewData["Title"] = "Progress Analytics";
+}
+
+<div class="lex-stat-grid">
+    <div class="lex-stat-card">
+        <div class="lex-stat-label">Total Students</div>
+        <div class="lex-stat-value">@Model.TotalLearners</div>
+    </div>
+    <div class="lex-stat-card">
+        <div class="lex-stat-label">Platform Average Score</div>
+        <div class="lex-stat-value">@Model.OverallAverageScore.ToString("0")%</div>
+    </div>
+</div>
+
+<div class="lex-analytics-grid">
+    <div class="lex-panel">
+        <h3 class="lex-panel-title">Category Performance Overview</h3>
+        <p style="color: var(--lex-text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+            Areas flagged as weak need additional curriculum focus.
+        </p>
+        @foreach (var cat in Model.CategoryOverview)
+        {
+            <div class="lex-category-bar">
+                <div class="lex-category-bar-header">
+                    <span>
+                        <strong>@cat.Category</strong>
+                        @if (cat.IsWeakArea && cat.AttemptCount > 0)
+                        {
+                            <span class="lex-badge" style="background:#ffe4e6;color:#9f1239;margin-left:0.5rem;">Weak area</span>
+                        }
+                    </span>
+                    <span>@cat.AverageScore.ToString("0")% · @cat.AttemptCount attempts</span>
+                </div>
+                <div class="lex-progress-bar">
+                    <div class="lex-progress-fill" style="width: @cat.AverageScore%"></div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="lex-panel">
+        <h3 class="lex-panel-title">Learner Performance</h3>
+        @if (!Model.Learners.Any())
+        {
+            <p style="color: var(--lex-text-muted);">No student accounts yet.</p>
+        }
+        else
+        {
+            @foreach (var learner in Model.Learners)
+            {
+                <div class="lex-learner-row">
+                    <div>
+                        <strong>@learner.FullName</strong>
+                        <div style="font-size: 0.8rem; color: var(--lex-text-muted);">@learner.Username · @learner.CurrentLevel</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div><strong>@learner.AverageScore.ToString("0")%</strong> avg</div>
+                        <div style="font-size: 0.75rem; color: var(--lex-text-muted);">@learner.CompletedModulesCount mastered</div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

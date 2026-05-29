@@ -1,0 +1,12 @@
+/* LexoraED base overrides */
+html { font-size: 15px; }
+
+.lex-shake {
+  animation: lexShake 0.4s ease;
+}
+
+@keyframes lexShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}

@@ -1,0 +1,64 @@
+@model StudentProgressAnalyticsViewModel
+@{
+    ViewData["Title"] = "Progress Analytics";
+}
+
+<div class="lex-stat-grid">
+    <div class="lex-stat-card">
+        <div class="lex-stat-label">Average Score</div>
+        <div class="lex-stat-value">@Model.AverageScore.ToString("0")%</div>
+    </div>
+    <div class="lex-stat-card">
+        <div class="lex-stat-label">Completed Modules</div>
+        <div class="lex-stat-value">@Model.CompletedModulesCount</div>
+    </div>
+    <div class="lex-stat-card">
+        <div class="lex-stat-label">Current Difficulty</div>
+        <div class="lex-stat-value" style="font-size: 1.35rem;">@Model.CurrentLevel</div>
+    </div>
+</div>
+
+<h2 style="font-family: 'Fraunces', Georgia, serif;">Learning Path Status</h2>
+<partial name="_PathProgression" model="Model.PathProgression" />
+
+<div class="lex-analytics-grid" style="margin-top: 2rem;">
+    <div class="lex-panel">
+        <h3 class="lex-panel-title">Progress by Category</h3>
+        @foreach (var cat in Model.CategoryProgress)
+        {
+            <div class="lex-category-bar">
+                <div class="lex-category-bar-header">
+                    <span><strong>@cat.Category</strong></span>
+                    <span>@cat.CompletedModules / @cat.TotalModules modules · Avg @cat.AverageScore.ToString("0")%</span>
+                </div>
+                <div class="lex-progress-bar">
+                    <div class="lex-progress-fill" style="width: @cat.ProgressPercent%"></div>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="lex-panel">
+        <h3 class="lex-panel-title">Recent Quiz Attempts</h3>
+        @if (!Model.RecentAttempts.Any())
+        {
+            <p style="color: var(--lex-text-muted);">No quiz attempts yet. Visit the Quiz Center to get started.</p>
+        }
+        else
+        {
+            @foreach (var attempt in Model.RecentAttempts)
+            {
+                <div class="lex-learner-row">
+                    <span>@attempt.ModuleTitle</span>
+                    <span>
+                        <strong style="color: @(attempt.Score >= 80 ? "#047857" : attempt.Score >= 50 ? "#92400e" : "#9f1239");">
+                            @attempt.Score%
+                        </strong>
+                        <small style="color: var(--lex-text-muted); margin-left: 0.5rem;">
+                            @attempt.AttemptDate.ToLocalTime().ToString("MMM d")
+                        </small>
+                    </span>
+                </div>
+            }
+        }
+    </div>
+</div>

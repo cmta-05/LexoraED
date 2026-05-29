@@ -1,0 +1,23 @@
+@model PathProgressionViewModel
+@using LexoraED.Models
+
+<div class="lex-path-track">
+    <div class="lex-path-step unlocked @(Model.CurrentLevel == DifficultyLevel.Easy ? "current" : "")">
+        <div class="lex-path-node"><span>E</span></div>
+        <span class="lex-path-label">Easy</span>
+    </div>
+    <div class="lex-path-step @(Model.MediumUnlocked ? "unlocked" : "locked") @(Model.CurrentLevel == DifficultyLevel.Medium ? "current" : "")">
+        <div class="lex-path-node"><span>M</span></div>
+        <span class="lex-path-label">Medium</span>
+    </div>
+    <div class="lex-path-step @(Model.HardUnlocked ? "unlocked" : "locked") @(Model.CurrentLevel == DifficultyLevel.Hard ? "current" : "")">
+        <div class="lex-path-node"><span>H</span></div>
+        <span class="lex-path-label">Hard</span>
+    </div>
+</div>
+@if (Model.RecommendedModuleId.HasValue)
+{
+    <p style="font-size: 0.9rem; color: var(--lex-text-muted); margin-top: -0.5rem;">
+        <strong style="color: var(--lex-violet-700);">Up next:</strong> @Model.RecommendedModuleTitle
+    </p>
+}

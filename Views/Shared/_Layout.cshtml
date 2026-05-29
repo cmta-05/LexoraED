@@ -1,0 +1,87 @@
+﻿@using LexoraED.Models
+@using LexoraED.Services
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - LexoraED</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/LexoraED.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-dark bg-primary mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold" asp-controller="Home" asp-action="Index">LexoraED</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#lexoraNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="lexoraNav">
+                    <ul class="navbar-nav me-auto">
+                        @{
+                            var learnerId = Context.Session.GetInt32(LearnerSessionKeys.LearnerId);
+                            var role = Context.Session.GetString(LearnerSessionKeys.LearnerRole);
+                        }
+                        @if (learnerId.HasValue && role == LearnerRole.Student.ToString())
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="StudentLearning" asp-action="Dashboard">My Learning</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="StudentLearning" asp-action="BrowseModules">Modules</a>
+                            </li>
+                        }
+                        @if (learnerId.HasValue && role == LearnerRole.Admin.ToString())
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="AdminLearningModule" asp-action="Index">Manage Modules</a>
+                            </li>
+                        }
+                    </ul>
+                    <ul class="navbar-nav">
+                        @if (learnerId.HasValue)
+                        {
+                            <li class="nav-item">
+                                <span class="navbar-text text-white me-3">
+                                    @Context.Session.GetString(LearnerSessionKeys.LearnerFullName)
+                                </span>
+                            </li>
+                            <li class="nav-item">
+                                <form asp-controller="LearnerAccess" asp-action="Logout" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-light btn-sm">Sign Out</button>
+                                </form>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="LearnerAccess" asp-action="Login">Sign In</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="LearnerAccess" asp-action="Register">Register</a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <footer class="border-top footer text-muted py-3">
+        <div class="container text-center">
+            LexoraED &mdash; Microlearning Adaptive LMS for English Education
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

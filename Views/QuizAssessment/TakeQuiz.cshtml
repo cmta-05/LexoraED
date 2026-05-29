@@ -1,0 +1,76 @@
+@model QuizSubmissionViewModel
+@{
+    ViewData["Title"] = "Quiz: " + Model.ModuleTitle;
+    var total = Model.Answers.Count;
+}
+
+<div class="lex-quiz-wrap">
+    <p style="color: var(--lex-text-muted); margin-bottom: 0.5rem;">@Model.ModuleTitle</p>
+    <h2 style="font-family: 'Fraunces', Georgia, serif; margin-top: 0;">Module Quiz</h2>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="lex-alert lex-alert-error">
+            <div asp-validation-summary="All"></div>
+        </div>
+    }
+
+    <form id="lexQuizForm" asp-action="SubmitQuiz" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="QuizSetId" />
+        <input type="hidden" asp-for="ModuleId" />
+        <input type="hidden" asp-for="ModuleTitle" />
+
+        <div class="lex-quiz-progress">
+            @for (var d = 0; d < total; d++)
+            {
+                <div class="lex-quiz-dot @(d == 0 ? "active" : "")"></div>
+            }
+        </div>
+
+        @for (var i = 0; i < Model.Answers.Count; i++)
+        {
+            var answer = Model.Answers[i];
+            <div class="lex-quiz-slide lex-quiz-card" style="@(i > 0 ? "display:none;" : "")">
+                <input type="hidden" asp-for="Answers[i].QuizItemId" />
+                <input type="hidden" asp-for="Answers[i].QuestionText" />
+                <input type="hidden" asp-for="Answers[i].ChoiceA" />
+                <input type="hidden" asp-for="Answers[i].ChoiceB" />
+                <input type="hidden" asp-for="Answers[i].ChoiceC" />
+                <input type="hidden" asp-for="Answers[i].ChoiceD" />
+
+                <div class="lex-progress-label">Question @(i + 1) of @total</div>
+                <h3 class="lex-quiz-question">@answer.QuestionText</h3>
+
+                <label class="lex-choice">
+                    <input type="radio" asp-for="Answers[i].SelectedAnswer" value="A" />
+                    A. @answer.ChoiceA
+                </label>
+                <label class="lex-choice">
+                    <input type="radio" asp-for="Answers[i].SelectedAnswer" value="B" />
+                    B. @answer.ChoiceB
+                </label>
+                <label class="lex-choice">
+                    <input type="radio" asp-for="Answers[i].SelectedAnswer" value="C" />
+                    C. @answer.ChoiceC
+                </label>
+                <label class="lex-choice">
+                    <input type="radio" asp-for="Answers[i].SelectedAnswer" value="D" />
+                    D. @answer.ChoiceD
+                </label>
+            </div>
+        }
+
+        <div class="lex-quiz-nav">
+            <button type="button" id="quizPrev" class="lex-btn lex-btn-ghost" style="visibility: hidden;">Previous</button>
+            <div style="display: flex; gap: 0.75rem;">
+                <button type="button" id="quizNext" class="lex-btn lex-btn-secondary">Next</button>
+                <button type="submit" id="quizSubmit" class="lex-btn lex-btn-primary" style="display: none;">Submit Quiz</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="~/js/lexora-quiz.js" asp-append-version="true"></script>
+}

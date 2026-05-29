@@ -1,0 +1,44 @@
+@model StudyModuleViewModel
+@{
+    ViewData["Title"] = Model.Title;
+    var levelClass = Model.DifficultyLevel switch
+    {
+        DifficultyLevel.Easy => "lex-badge-easy",
+        DifficultyLevel.Medium => "lex-badge-medium",
+        DifficultyLevel.Hard => "lex-badge-hard",
+        _ => ""
+    };
+}
+
+<nav style="margin-bottom: 1.5rem;">
+    <a asp-action="Dashboard" class="lex-btn lex-btn-ghost lex-btn-sm">← Back to Dashboard</a>
+</nav>
+
+<div class="lex-lesson">
+    <header class="lex-lesson-header">
+        <div class="lex-badge-row">
+            <span class="lex-badge lex-badge-category">@Model.Category</span>
+            <span class="lex-badge @levelClass">@Model.DifficultyLevel</span>
+        </div>
+        <h1 style="font-family: 'Fraunces', Georgia, serif; font-size: 2rem; margin: 0.5rem 0;">@Model.Title</h1>
+        <p style="color: var(--lex-text-muted); font-size: 1.05rem;">@Model.Description</p>
+    </header>
+
+    <article class="lex-lesson-body">
+        @foreach (var paragraph in Model.Content.Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            <p>@paragraph</p>
+        }
+    </article>
+
+    <div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+        @if (Model.HasQuiz)
+        {
+            <a asp-controller="QuizAssessment" asp-action="TakeQuiz" asp-route-moduleId="@Model.Id"
+               class="lex-btn lex-btn-primary">
+                Take Quiz
+            </a>
+        }
+        <a asp-action="LearningModules" class="lex-btn lex-btn-secondary">All Modules</a>
+    </div>
+</div>

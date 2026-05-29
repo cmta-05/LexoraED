@@ -1,0 +1,47 @@
+@model QuizResultViewModel
+@{
+    ViewData["Title"] = "Quiz Results";
+    var tierClass = Model.Score >= 80 ? "excellent" : Model.Score >= 50 ? "good-progress" : "needs-improvement";
+}
+
+@if (TempData["QuizSuccess"] as bool? == true)
+{
+    <div class="lex-alert lex-alert-success">
+        Quiz submitted successfully! Your learning path has been updated.
+    </div>
+}
+
+<div class="lex-result-hero">
+    <p style="margin: 0; opacity: 0.9;">@Model.FeedbackHeadline</p>
+    <div class="lex-result-score">@Model.Score%</div>
+    <span class="lex-result-tier @tierClass">@Model.FeedbackTier</span>
+</div>
+
+<div class="lex-panel" style="margin-bottom: 1.5rem;">
+    <h3 class="lex-panel-title">Adaptive Guidance</h3>
+    <p style="line-height: 1.7; margin: 0;">@Model.GuidanceMessage</p>
+    <div class="lex-stat-grid" style="margin-top: 1.5rem; margin-bottom: 0;">
+        <div class="lex-stat-card">
+            <div class="lex-stat-label">Your Level</div>
+            <div class="lex-stat-value" style="font-size: 1.25rem;">@Model.CurrentLevel</div>
+        </div>
+        <div class="lex-stat-card">
+            <div class="lex-stat-label">Recommended</div>
+            <div class="lex-stat-value" style="font-size: 1.25rem;">@Model.RecommendedLevel</div>
+        </div>
+        <div class="lex-stat-card">
+            <div class="lex-stat-label">Modules Mastered</div>
+            <div class="lex-stat-value" style="font-size: 1.25rem;">@Model.CompletedModulesCount</div>
+        </div>
+    </div>
+</div>
+
+<div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+    <a asp-controller="StudentLearning" asp-action="Dashboard" class="lex-btn lex-btn-primary">Dashboard</a>
+    <a asp-controller="StudentLearning" asp-action="ProgressAnalytics" class="lex-btn lex-btn-secondary">View Analytics</a>
+    @if (Model.ModuleId > 0)
+    {
+        <a asp-controller="QuizAssessment" asp-action="TakeQuiz" asp-route-moduleId="@Model.ModuleId"
+           class="lex-btn lex-btn-ghost">Retake Quiz</a>
+    }
+</div>

@@ -1,0 +1,15 @@
+@model LearningModulesPageViewModel
+@{
+    ViewData["Title"] = "Learning Modules";
+}
+
+<p style="color: var(--lex-text-muted); margin-bottom: 1.5rem;">
+    Explore microlearning modules organized by difficulty. Complete quizzes to unlock advanced content.
+</p>
+
+<partial name="_PathProgression" model="Model.PathProgression" />
+
+@foreach (var tier in Model.DifficultyTiers)
+{
+    <partial name="_DifficultyTier" model="tier" />
+}

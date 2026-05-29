@@ -1,0 +1,33 @@
+@model LearningPathDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<p style="color: var(--lex-text-muted); margin-bottom: 1.5rem;">
+    Welcome back, <strong>@Model.LearnerName</strong>. Your personalized English learning path awaits.
+</p>
+
+<div class="lex-stat-grid">
+    <div class="lex-stat-card">
+        <div class="lex-stat-label">Current Level</div>
+        <div class="lex-stat-value">@Model.CurrentLevel</div>
+    </div>
+    <div class="lex-stat-card">
+        <div class="lex-stat-label">Modules Mastered</div>
+        <div class="lex-stat-value">@Model.CompletedModulesCount</div>
+    </div>
+    <div class="lex-stat-card">
+        <div class="lex-stat-label">Average Score</div>
+        <div class="lex-stat-value">@Model.AverageScore.ToString("0")%</div>
+    </div>
+</div>
+
+<h2 style="font-family: 'Fraunces', Georgia, serif; margin-bottom: 0.5rem;">Your Learning Path</h2>
+<p style="color: var(--lex-text-muted); font-size: 0.9rem; margin-bottom: 0;">Progress through Easy → Medium → Hard as you master each tier.</p>
+
+<partial name="_PathProgression" model="Model.PathProgression" />
+
+@foreach (var tier in Model.DifficultyTiers)
+{
+    <partial name="_DifficultyTier" model="tier" />
+}

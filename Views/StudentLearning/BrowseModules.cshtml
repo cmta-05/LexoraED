@@ -1,0 +1,33 @@
+@model IEnumerable<LearningModule>
+@{
+    ViewData["Title"] = "Learning Modules";
+}
+
+<h1>All Learning Modules</h1>
+<p class="text-muted">Microlearning modules across grammar, vocabulary, and reading.</p>
+
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Level</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var module in Model)
+            {
+                <tr>
+                    <td>@module.Title</td>
+                    <td><span class="badge bg-secondary">@module.Category</span></td>
+                    <td><span class="badge bg-info">@module.DifficultyLevel</span></td>
+                    <td>
+                        <a asp-action="StudyModule" asp-route-id="@module.Id" class="btn btn-sm btn-primary">Study</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

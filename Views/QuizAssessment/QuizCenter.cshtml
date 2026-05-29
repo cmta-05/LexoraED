@@ -1,0 +1,54 @@
+@model QuizCenterViewModel
+@{
+    ViewData["Title"] = "Quiz Center";
+}
+
+<p style="color: var(--lex-text-muted); margin-bottom: 1.5rem;">
+    Test your knowledge after studying. Scores shape your adaptive learning path.
+</p>
+
+@if (!Model.AvailableQuizzes.Any())
+{
+    <div class="lex-panel">
+        <p>No quizzes available yet. Complete a learning module first.</p>
+    </div>
+}
+else
+{
+    <div class="lex-module-grid">
+        @foreach (var quiz in Model.AvailableQuizzes)
+        {
+            var levelClass = quiz.DifficultyLevel switch
+            {
+                DifficultyLevel.Easy => "lex-badge-easy",
+                DifficultyLevel.Medium => "lex-badge-medium",
+                DifficultyLevel.Hard => "lex-badge-hard",
+                _ => ""
+            };
+            <article class="lex-module-card @(quiz.IsLocked ? "locked" : "")">
+                <div class="lex-badge-row">
+                    <span class="lex-badge lex-badge-category">@quiz.Category</span>
+                    <span class="lex-badge @levelClass">@quiz.DifficultyLevel</span>
+                </div>
+                <h3 class="lex-module-title">@quiz.ModuleTitle</h3>
+                <p class="lex-module-desc">@quiz.QuestionCount question(s)</p>
+                @if (quiz.BestScore.HasValue)
+                {
+                    <div class="lex-progress-label">Best score: @quiz.BestScore%</div>
+                    <div class="lex-progress-bar">
+                        <div class="lex-progress-fill" style="width: @quiz.BestScore%"></div>
+                    </div>
+                }
+                @if (!quiz.IsLocked)
+                {
+                    <a asp-action="TakeQuiz" asp-route-moduleId="@quiz.ModuleId"
+                       class="lex-btn lex-btn-primary lex-btn-block">Start Quiz</a>
+                }
+                else
+                {
+                    <button class="lex-btn lex-btn-ghost lex-btn-block" disabled>Locked</button>
+                }
+            </article>
+        }
+    </div>
+}

@@ -1,0 +1,6 @@
+﻿@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    Layout = controller == "LearnerAccess"
+        ? "_AuthLayout"
+        : "_LexoraLayout";
+}
