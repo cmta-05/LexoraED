@@ -1,11 +1,25 @@
 @model LearningModulesPageViewModel
-@{
-    ViewData["Title"] = "Learning Modules";
-}
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{ ViewData["Title"] = "Learning Modules"; }
 
-<p style="color: var(--lex-text-muted); margin-bottom: 1.5rem;">
-    Explore microlearning modules organized by difficulty. Complete quizzes to unlock advanced content.
-</p>
+<form method="get" class="glass-card lex-filter-bar">
+    <input type="text" name="search" value="@Model.Search" placeholder="Search modules..." class="lex-form-input" style="flex:1" />
+    <select name="category" class="lex-form-input">
+        <option value="">All categories</option>
+        @foreach (var c in Enum.GetValues<ModuleCategory>())
+        {
+            <option value="@c" selected="@(Model.CategoryFilter == c)">@c</option>
+        }
+    </select>
+    <select name="difficulty" class="lex-form-input">
+        <option value="">All levels</option>
+        @foreach (var d in Enum.GetValues<DifficultyLevel>())
+        {
+            <option value="@d" selected="@(Model.DifficultyFilter == d)">@d</option>
+        }
+    </select>
+    <button type="submit" class="lex-btn lex-btn-primary">Filter</button>
+</form>
 
 <partial name="_PathProgression" model="Model.PathProgression" />
 

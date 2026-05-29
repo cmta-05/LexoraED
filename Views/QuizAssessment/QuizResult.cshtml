@@ -1,47 +1,42 @@
 @model QuizResultViewModel
 @{
     ViewData["Title"] = "Quiz Results";
-    var tierClass = Model.Score >= 80 ? "excellent" : Model.Score >= 50 ? "good-progress" : "needs-improvement";
+    var tierClass = Model.Score >= 76 ? "excellent" : Model.Score >= 51 ? "good-progress" : "needs-improvement";
 }
 
 @if (TempData["QuizSuccess"] as bool? == true)
 {
-    <div class="lex-alert lex-alert-success">
-        Quiz submitted successfully! Your learning path has been updated.
+    <div class="lex-alert lex-alert-success">Quiz submitted successfully! Your adaptive path has been updated. +XP earned.</div>
+}
+
+<div class="lex-result-hero glass-card">
+    <p style="margin:0;opacity:0.9">@Model.FeedbackHeadline</p>
+    <div class="lex-result-score">@Model.Score%</div>
+    <span class="lex-result-tier @tierClass">@Model.FeedbackTier</span>
+    <p style="margin-top:1rem">Streak: @Model.CurrentStreak days · XP: @Model.ExperiencePoints</p>
+</div>
+
+<div class="glass-card lex-panel">
+    <h3 class="lex-panel-title">Adaptive Guidance</h3>
+    <p>@Model.GuidanceMessage</p>
+</div>
+
+<h2 class="lex-section-title">Answer Review</h2>
+@foreach (var review in Model.AnswerReviews)
+{
+    <div class="glass-card" style="padding:1rem;margin-bottom:0.75rem;border-left:4px solid @(review.IsCorrect ? "#4CAF50" : "var(--lex-rose)")">
+        <p><strong>@review.QuestionText</strong></p>
+        <p>Your answer: @review.SelectedAnswer</p>
+        <p>Correct: @review.CorrectAnswer</p>
+        @if (!string.IsNullOrEmpty(review.Explanation))
+        {
+            <p style="color:var(--lex-text-muted);font-size:0.9rem">@review.Explanation</p>
+        }
     </div>
 }
 
-<div class="lex-result-hero">
-    <p style="margin: 0; opacity: 0.9;">@Model.FeedbackHeadline</p>
-    <div class="lex-result-score">@Model.Score%</div>
-    <span class="lex-result-tier @tierClass">@Model.FeedbackTier</span>
-</div>
-
-<div class="lex-panel" style="margin-bottom: 1.5rem;">
-    <h3 class="lex-panel-title">Adaptive Guidance</h3>
-    <p style="line-height: 1.7; margin: 0;">@Model.GuidanceMessage</p>
-    <div class="lex-stat-grid" style="margin-top: 1.5rem; margin-bottom: 0;">
-        <div class="lex-stat-card">
-            <div class="lex-stat-label">Your Level</div>
-            <div class="lex-stat-value" style="font-size: 1.25rem;">@Model.CurrentLevel</div>
-        </div>
-        <div class="lex-stat-card">
-            <div class="lex-stat-label">Recommended</div>
-            <div class="lex-stat-value" style="font-size: 1.25rem;">@Model.RecommendedLevel</div>
-        </div>
-        <div class="lex-stat-card">
-            <div class="lex-stat-label">Modules Mastered</div>
-            <div class="lex-stat-value" style="font-size: 1.25rem;">@Model.CompletedModulesCount</div>
-        </div>
-    </div>
-</div>
-
-<div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+<div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:1.5rem">
     <a asp-controller="StudentLearning" asp-action="Dashboard" class="lex-btn lex-btn-primary">Dashboard</a>
-    <a asp-controller="StudentLearning" asp-action="ProgressAnalytics" class="lex-btn lex-btn-secondary">View Analytics</a>
-    @if (Model.ModuleId > 0)
-    {
-        <a asp-controller="QuizAssessment" asp-action="TakeQuiz" asp-route-moduleId="@Model.ModuleId"
-           class="lex-btn lex-btn-ghost">Retake Quiz</a>
-    }
+    <a asp-controller="StudentLearning" asp-action="LearningPathMap" class="lex-btn lex-btn-secondary">Learning Path</a>
+    <a asp-controller="LexoraReports" asp-action="StudentReport" class="lex-btn lex-btn-ghost">Reports</a>
 </div>

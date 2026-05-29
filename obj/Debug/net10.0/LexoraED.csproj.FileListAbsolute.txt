@@ -221,6 +221,8 @@ C:\Users\Charlene\OneDrive\Desktop\LexoraED\obj\Debug\net10.0\refint\LexoraED.dl
 C:\Users\Charlene\OneDrive\Desktop\LexoraED\obj\Debug\net10.0\LexoraED.pdb
 C:\Users\Charlene\OneDrive\Desktop\LexoraED\obj\Debug\net10.0\LexoraED.genruntimeconfig.cache
 C:\Users\Charlene\OneDrive\Desktop\LexoraED\obj\Debug\net10.0\ref\LexoraED.dll
-C:\Users\Charlene\OneDrive\Desktop\LexoraED\obj\Debug\net10.0\compressed\emiiob8hww-{0}-e0v7jyfbsf-e0v7jyfbsf.gz
-C:\Users\Charlene\OneDrive\Desktop\LexoraED\obj\Debug\net10.0\compressed\78rp8gahkb-{0}-29p57k3vz1-29p57k3vz1.gz
 C:\Users\Charlene\OneDrive\Desktop\LexoraED\obj\Debug\net10.0\compressed\l0x0fybd52-{0}-xx4u18kphh-xx4u18kphh.gz
+C:\Users\Charlene\OneDrive\Desktop\LexoraED\obj\Debug\net10.0\LexoraED.sourcelink.json
+C:\Users\Charlene\OneDrive\Desktop\LexoraED\obj\Debug\net10.0\compressed\emiiob8hww-{0}-3htuuyuu7b-3htuuyuu7b.gz
+C:\Users\Charlene\OneDrive\Desktop\LexoraED\obj\Debug\net10.0\compressed\pcf4xpczsu-{0}-z247sxjl5m-z247sxjl5m.gz
+C:\Users\Charlene\OneDrive\Desktop\LexoraED\obj\Debug\net10.0\compressed\78rp8gahkb-{0}-901lmkzmgo-901lmkzmgo.gz

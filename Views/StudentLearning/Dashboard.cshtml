@@ -1,33 +1,88 @@
 @model LearningPathDashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
+    var hour = DateTime.Now.Hour;
+    var greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 }
 
-<p style="color: var(--lex-text-muted); margin-bottom: 1.5rem;">
-    Welcome back, <strong>@Model.LearnerName</strong>. Your personalized English learning path awaits.
-</p>
+<section class="lex-greeting glass-card">
+    <div>
+        <p class="lex-greeting-sub">@greeting,</p>
+        <h2 class="lex-greeting-name">@Model.LearnerName</h2>
+        <p class="lex-greeting-desc">Continue your adaptive English microlearning journey on LexoraED.</p>
+    </div>
+    <div class="lex-xp-ring">
+        <span class="lex-xp-value">@Model.ExperiencePoints</span>
+        <span class="lex-xp-label">XP</span>
+    </div>
+</section>
 
 <div class="lex-stat-grid">
-    <div class="lex-stat-card">
+    <div class="glass-card lex-stat-card">
         <div class="lex-stat-label">Current Level</div>
         <div class="lex-stat-value">@Model.CurrentLevel</div>
     </div>
-    <div class="lex-stat-card">
+    <div class="glass-card lex-stat-card">
         <div class="lex-stat-label">Modules Mastered</div>
         <div class="lex-stat-value">@Model.CompletedModulesCount</div>
     </div>
-    <div class="lex-stat-card">
+    <div class="glass-card lex-stat-card">
         <div class="lex-stat-label">Average Score</div>
         <div class="lex-stat-value">@Model.AverageScore.ToString("0")%</div>
     </div>
+    <div class="glass-card lex-stat-card">
+        <div class="lex-stat-label">Activity Streak</div>
+        <div class="lex-stat-value">@Model.CurrentStreak 🔥</div>
+    </div>
+    <div class="glass-card lex-stat-card">
+        <div class="lex-stat-label">Overall Progress</div>
+        <div class="lex-stat-value">@Model.OverallCompletionPercent%</div>
+        <div class="lex-progress-bar" style="margin-top:0.5rem">
+            <div class="lex-progress-fill" style="width:@Model.OverallCompletionPercent%"></div>
+        </div>
+    </div>
 </div>
 
-<h2 style="font-family: 'Fraunces', Georgia, serif; margin-bottom: 0.5rem;">Your Learning Path</h2>
-<p style="color: var(--lex-text-muted); font-size: 0.9rem; margin-bottom: 0;">Progress through Easy → Medium → Hard as you master each tier.</p>
+@if (Model.RecommendedModule != null)
+{
+    <div class="glass-card lex-recommended-banner">
+        <div>
+            <span class="lex-badge lex-badge-recommended">Recommended Lesson</span>
+            <h3>@Model.RecommendedModule.Title</h3>
+            <p>@Model.RecommendedModule.Description</p>
+        </div>
+        <a asp-action="StudyModule" asp-route-id="@Model.RecommendedModule.Id" class="lex-btn lex-btn-primary">Start Learning</a>
+    </div>
+}
 
+<h2 class="lex-section-title">Learning Path Map</h2>
+<partial name="_LearningPathMap" model="Model.PathMap" />
+
+<h2 class="lex-section-title">Path Progression</h2>
 <partial name="_PathProgression" model="Model.PathProgression" />
 
+@if (Model.Badges.Any())
+{
+    <h2 class="lex-section-title">Achievement Badges</h2>
+    <div class="lex-badge-grid">
+        @foreach (var badge in Model.Badges)
+        {
+            <div class="glass-card lex-achievement-card">
+                <div class="lex-achievement-icon">🏅</div>
+                <strong>@badge.Title</strong>
+                <p>@badge.Description</p>
+                <small>@badge.EarnedAt.ToLocalTime().ToString("MMM d, yyyy")</small>
+            </div>
+        }
+    </div>
+}
+
+<h2 class="lex-section-title">Your Modules</h2>
 @foreach (var tier in Model.DifficultyTiers)
 {
     <partial name="_DifficultyTier" model="tier" />
+}
+
+@section Scripts {
+    <script src="~/js/lexora-offline.js" asp-append-version="true"></script>
 }

@@ -18,6 +18,14 @@ public static class LexoraEDSeedData
             Role = LearnerRole.Admin
         };
 
+        var teacher = new Learner
+        {
+            FullName = "Sample Teacher",
+            Username = "teacher",
+            PasswordHash = LearnerCredentialHasher.HashPassword("Teacher@123"),
+            Role = LearnerRole.Teacher
+        };
+
         var student = new Learner
         {
             FullName = "Sample Student",
@@ -26,13 +34,15 @@ public static class LexoraEDSeedData
             Role = LearnerRole.Student
         };
 
-        context.Learners.AddRange(admin, student);
+        context.Learners.AddRange(admin, teacher, student);
         context.SaveChanges();
+
+        context.TeacherProfiles.Add(new TeacherProfile { LearnerId = teacher.Id });
 
         context.LearningProgresses.Add(new LearningProgress
         {
             LearnerId = student.Id,
-            CurrentLevel = DifficultyLevel.Easy,
+            CurrentLevel = DifficultyLevel.Beginner,
             CompletedModulesCount = 0
         });
 
@@ -42,7 +52,7 @@ public static class LexoraEDSeedData
             Description = "Learn how to form and use the present simple tense in everyday English.",
             Content = "The present simple is used for habits, facts, and routines. Subject + base verb (add -s for he/she/it).",
             Category = ModuleCategory.Grammar,
-            DifficultyLevel = DifficultyLevel.Easy
+            DifficultyLevel = DifficultyLevel.Beginner
         };
 
         var vocabularyEasy = new LearningModule
@@ -51,7 +61,7 @@ public static class LexoraEDSeedData
             Description = "Essential greeting words and phrases for daily conversation.",
             Content = "Hello, Hi, Good morning, Good afternoon, Good evening, How are you?",
             Category = ModuleCategory.Vocabulary,
-            DifficultyLevel = DifficultyLevel.Easy
+            DifficultyLevel = DifficultyLevel.Beginner
         };
 
         var readingMedium = new LearningModule
@@ -60,7 +70,7 @@ public static class LexoraEDSeedData
             Description = "Read a short passage and identify main ideas and details.",
             Content = "Read carefully and look for who, what, when, where, and why in the text.",
             Category = ModuleCategory.Reading,
-            DifficultyLevel = DifficultyLevel.Medium
+            DifficultyLevel = DifficultyLevel.Intermediate
         };
 
         var grammarHard = new LearningModule
@@ -69,7 +79,7 @@ public static class LexoraEDSeedData
             Description = "Master first, second, and third conditional structures.",
             Content = "Zero: If + present, present. First: If + present, will. Second: If + past, would. Third: If + past perfect, would have.",
             Category = ModuleCategory.Grammar,
-            DifficultyLevel = DifficultyLevel.Hard
+            DifficultyLevel = DifficultyLevel.Advanced
         };
 
         context.LearningModules.AddRange(grammarEasy, vocabularyEasy, readingMedium, grammarHard);

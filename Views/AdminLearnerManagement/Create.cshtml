@@ -1,0 +1,11 @@
+@model LearnerFormViewModel
+@{ ViewData["Title"] = "Create User"; }
+<div class="glass-card" style="padding:1.5rem;max-width:520px">
+    <h2>Create User</h2>
+    <form asp-action="Create" method="post">
+        <partial name="_LearnerForm" model="Model" />
+        <button type="submit" class="lex-btn lex-btn-primary">Create</button>
+        <a asp-action="Index" class="lex-btn lex-btn-ghost">Cancel</a>
+    </form>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

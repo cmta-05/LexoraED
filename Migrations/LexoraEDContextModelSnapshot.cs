@@ -22,6 +22,72 @@ namespace LexoraED.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("LexoraED.Models.AchievementBadge", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IconClass")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PointsAwarded")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("nvarchar(120)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.ToTable("AchievementBadges");
+                });
+
+            modelBuilder.Entity("LexoraED.Models.ActivityLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ActivityType")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("LearnerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LoggedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LearnerId");
+
+                    b.ToTable("ActivityLogs");
+                });
+
             modelBuilder.Entity("LexoraED.Models.Learner", b =>
                 {
                     b.Property<int>("Id")
@@ -30,10 +96,16 @@ namespace LexoraED.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -55,6 +127,33 @@ namespace LexoraED.Migrations
                         .IsUnique();
 
                     b.ToTable("Learners");
+                });
+
+            modelBuilder.Entity("LexoraED.Models.LearnerAchievement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AchievementBadgeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("EarnedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LearnerId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AchievementBadgeId");
+
+                    b.HasIndex("LearnerId", "AchievementBadgeId")
+                        .IsUnique();
+
+                    b.ToTable("LearnerAchievements");
                 });
 
             modelBuilder.Entity("LexoraED.Models.LearningAttempt", b =>
@@ -113,12 +212,20 @@ namespace LexoraED.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<int?>("PrerequisiteModuleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PrerequisiteModuleId");
 
                     b.ToTable("LearningModules");
                 });
@@ -139,7 +246,19 @@ namespace LexoraED.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<int>("CurrentStreak")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ExperiencePoints")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("LastActivityDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("LearnerId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("RecommendedModuleId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -148,6 +267,42 @@ namespace LexoraED.Migrations
                         .IsUnique();
 
                     b.ToTable("LearningProgresses");
+                });
+
+            modelBuilder.Entity("LexoraED.Models.ModuleProgress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BestScore")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastAccessedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LearnerId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LearningModuleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LearningModuleId");
+
+                    b.HasIndex("LearnerId", "LearningModuleId")
+                        .IsUnique();
+
+                    b.ToTable("ModuleProgresses");
                 });
 
             modelBuilder.Entity("LexoraED.Models.QuizItem", b =>
@@ -176,13 +331,21 @@ namespace LexoraED.Migrations
 
                     b.Property<string>("CorrectAnswer")
                         .IsRequired()
-                        .HasMaxLength(1)
-                        .HasColumnType("nvarchar(1)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Explanation")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("QuestionText")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("QuestionType")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<int>("QuizSetId")
                         .HasColumnType("int");
@@ -212,6 +375,63 @@ namespace LexoraED.Migrations
                     b.ToTable("QuizSets");
                 });
 
+            modelBuilder.Entity("LexoraED.Models.TeacherProfile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("LearnerId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Specialization")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LearnerId")
+                        .IsUnique();
+
+                    b.ToTable("TeacherProfiles");
+                });
+
+            modelBuilder.Entity("LexoraED.Models.ActivityLog", b =>
+                {
+                    b.HasOne("LexoraED.Models.Learner", "Learner")
+                        .WithMany("ActivityLogs")
+                        .HasForeignKey("LearnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Learner");
+                });
+
+            modelBuilder.Entity("LexoraED.Models.LearnerAchievement", b =>
+                {
+                    b.HasOne("LexoraED.Models.AchievementBadge", "AchievementBadge")
+                        .WithMany("LearnerAchievements")
+                        .HasForeignKey("AchievementBadgeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LexoraED.Models.Learner", "Learner")
+                        .WithMany("LearnerAchievements")
+                        .HasForeignKey("LearnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AchievementBadge");
+
+                    b.Navigation("Learner");
+                });
+
             modelBuilder.Entity("LexoraED.Models.LearningAttempt", b =>
                 {
                     b.HasOne("LexoraED.Models.Learner", "Learner")
@@ -231,6 +451,16 @@ namespace LexoraED.Migrations
                     b.Navigation("QuizSet");
                 });
 
+            modelBuilder.Entity("LexoraED.Models.LearningModule", b =>
+                {
+                    b.HasOne("LexoraED.Models.LearningModule", "PrerequisiteModule")
+                        .WithMany()
+                        .HasForeignKey("PrerequisiteModuleId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("PrerequisiteModule");
+                });
+
             modelBuilder.Entity("LexoraED.Models.LearningProgress", b =>
                 {
                     b.HasOne("LexoraED.Models.Learner", "Learner")
@@ -240,6 +470,25 @@ namespace LexoraED.Migrations
                         .IsRequired();
 
                     b.Navigation("Learner");
+                });
+
+            modelBuilder.Entity("LexoraED.Models.ModuleProgress", b =>
+                {
+                    b.HasOne("LexoraED.Models.Learner", "Learner")
+                        .WithMany("ModuleProgresses")
+                        .HasForeignKey("LearnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LexoraED.Models.LearningModule", "LearningModule")
+                        .WithMany("ModuleProgresses")
+                        .HasForeignKey("LearningModuleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Learner");
+
+                    b.Navigation("LearningModule");
                 });
 
             modelBuilder.Entity("LexoraED.Models.QuizItem", b =>
@@ -264,15 +513,41 @@ namespace LexoraED.Migrations
                     b.Navigation("LearningModule");
                 });
 
+            modelBuilder.Entity("LexoraED.Models.TeacherProfile", b =>
+                {
+                    b.HasOne("LexoraED.Models.Learner", "Learner")
+                        .WithOne("TeacherProfile")
+                        .HasForeignKey("LexoraED.Models.TeacherProfile", "LearnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Learner");
+                });
+
+            modelBuilder.Entity("LexoraED.Models.AchievementBadge", b =>
+                {
+                    b.Navigation("LearnerAchievements");
+                });
+
             modelBuilder.Entity("LexoraED.Models.Learner", b =>
                 {
+                    b.Navigation("ActivityLogs");
+
+                    b.Navigation("LearnerAchievements");
+
                     b.Navigation("LearningAttempts");
 
                     b.Navigation("LearningProgress");
+
+                    b.Navigation("ModuleProgresses");
+
+                    b.Navigation("TeacherProfile");
                 });
 
             modelBuilder.Entity("LexoraED.Models.LearningModule", b =>
                 {
+                    b.Navigation("ModuleProgresses");
+
                     b.Navigation("QuizSets");
                 });
 

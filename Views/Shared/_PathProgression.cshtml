@@ -2,22 +2,22 @@
 @using LexoraED.Models
 
 <div class="lex-path-track">
-    <div class="lex-path-step unlocked @(Model.CurrentLevel == DifficultyLevel.Easy ? "current" : "")">
-        <div class="lex-path-node"><span>E</span></div>
-        <span class="lex-path-label">Easy</span>
+    <div class="lex-path-step unlocked @(Model.CurrentLevel == DifficultyLevel.Beginner ? "current" : "")">
+        <div class="lex-path-node"><span>B</span></div>
+        <span class="lex-path-label">Beginner</span>
     </div>
-    <div class="lex-path-step @(Model.MediumUnlocked ? "unlocked" : "locked") @(Model.CurrentLevel == DifficultyLevel.Medium ? "current" : "")">
-        <div class="lex-path-node"><span>M</span></div>
-        <span class="lex-path-label">Medium</span>
+    <div class="lex-path-step @(Model.IntermediateUnlocked ? "unlocked" : "locked") @(Model.CurrentLevel == DifficultyLevel.Intermediate ? "current" : "")">
+        <div class="lex-path-node"><span>I</span></div>
+        <span class="lex-path-label">Intermediate</span>
     </div>
-    <div class="lex-path-step @(Model.HardUnlocked ? "unlocked" : "locked") @(Model.CurrentLevel == DifficultyLevel.Hard ? "current" : "")">
-        <div class="lex-path-node"><span>H</span></div>
-        <span class="lex-path-label">Hard</span>
+    <div class="lex-path-step @(Model.AdvancedUnlocked ? "unlocked" : "locked") @(Model.CurrentLevel == DifficultyLevel.Advanced ? "current" : "")">
+        <div class="lex-path-node"><span>A</span></div>
+        <span class="lex-path-label">Advanced</span>
     </div>
 </div>
 @if (Model.RecommendedModuleId.HasValue)
 {
-    <p style="font-size: 0.9rem; color: var(--lex-text-muted); margin-top: -0.5rem;">
-        <strong style="color: var(--lex-violet-700);">Up next:</strong> @Model.RecommendedModuleTitle
+    <p class="lex-path-hint">
+        <strong>Up next:</strong> @Model.RecommendedModuleTitle
     </p>
 }

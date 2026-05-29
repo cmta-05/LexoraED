@@ -1,0 +1,18 @@
+@model LearningPathDashboardViewModel
+@{ ViewData["Title"] = "Learning Path"; }
+
+<p style="color:var(--lex-text-muted)">Your gamified roadmap through LexoraED microlessons.</p>
+
+<partial name="_LearningPathMap" model="Model.PathMap" />
+<partial name="_PathProgression" model="Model.PathProgression" />
+
+@if (Model.RecommendedModule != null)
+{
+    <div class="glass-card lex-recommended-banner" style="margin-top:2rem">
+        <div>
+            <span class="lex-badge lex-badge-recommended">Glow — Recommended</span>
+            <h3>@Model.RecommendedModule.Title</h3>
+        </div>
+        <a asp-action="StudyModule" asp-route-id="@Model.RecommendedModule.Id" class="lex-btn lex-btn-primary">Start Lesson</a>
+    </div>
+}

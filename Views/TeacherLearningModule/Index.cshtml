@@ -1,0 +1,26 @@
+@model IEnumerable<LearningModule>
+@{ ViewData["Title"] = "Module Management"; }
+
+<form method="get" class="glass-card lex-filter-bar">
+    <input type="text" name="search" value="@ViewBag.Search" placeholder="Search..." class="lex-form-input" style="flex:1" />
+    <button type="submit" class="lex-btn lex-btn-primary">Search</button>
+    <a asp-action="Create" class="lex-btn lex-btn-secondary">Add Module</a>
+</form>
+
+@foreach (var module in Model)
+{
+    <div class="glass-card lex-admin-card">
+        <div>
+            <strong>@module.Title</strong>
+            <div style="font-size:0.85rem;color:var(--lex-text-muted)">@module.Category · @module.DifficultyLevel</div>
+        </div>
+        <div>
+            <a asp-action="Edit" asp-route-id="@module.Id" class="lex-btn lex-btn-sm lex-btn-secondary">Edit</a>
+            <a asp-controller="TeacherQuizManagement" asp-action="ManageQuestions" asp-route-moduleId="@module.Id" class="lex-btn lex-btn-sm lex-btn-primary">Quiz</a>
+            <form asp-action="Delete" asp-route-id="@module.Id" method="post" class="d-inline" onsubmit="return confirm('Delete?');">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="lex-btn lex-btn-sm lex-btn-ghost">Delete</button>
+            </form>
+        </div>
+    </div>
+}

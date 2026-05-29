@@ -8,8 +8,43 @@ public class LearningPathDashboardViewModel
     public DifficultyLevel CurrentLevel { get; set; }
     public int CompletedModulesCount { get; set; }
     public double AverageScore { get; set; }
+    public int ExperiencePoints { get; set; }
+    public int CurrentStreak { get; set; }
+    public int OverallCompletionPercent { get; set; }
     public List<DifficultyTierViewModel> DifficultyTiers { get; set; } = new();
     public PathProgressionViewModel PathProgression { get; set; } = new();
+    public LearningPathMapViewModel PathMap { get; set; } = new();
+    public List<LearnerBadgeViewModel> Badges { get; set; } = new();
+    public LearningModuleCardViewModel? RecommendedModule { get; set; }
+}
+
+public class LearningPathMapViewModel
+{
+    public List<PathMapNodeViewModel> Nodes { get; set; } = new();
+}
+
+public class PathMapNodeViewModel
+{
+    public int ModuleId { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public DifficultyLevel Level { get; set; }
+    public PathMapNodeState State { get; set; }
+    public int SortOrder { get; set; }
+}
+
+public enum PathMapNodeState
+{
+    Locked,
+    Current,
+    Completed,
+    Recommended
+}
+
+public class LearnerBadgeViewModel
+{
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public DateTime EarnedAt { get; set; }
 }
 
 public class DifficultyTierViewModel
@@ -38,9 +73,9 @@ public class PathProgressionViewModel
 {
     public DifficultyLevel CurrentLevel { get; set; }
     public DifficultyLevel RecommendedLevel { get; set; }
-    public bool EasyUnlocked { get; set; } = true;
-    public bool MediumUnlocked { get; set; }
-    public bool HardUnlocked { get; set; }
+    public bool BeginnerUnlocked { get; set; } = true;
+    public bool IntermediateUnlocked { get; set; }
+    public bool AdvancedUnlocked { get; set; }
     public int? RecommendedModuleId { get; set; }
     public string? RecommendedModuleTitle { get; set; }
 }
@@ -49,6 +84,9 @@ public class LearningModulesPageViewModel
 {
     public List<DifficultyTierViewModel> DifficultyTiers { get; set; } = new();
     public PathProgressionViewModel PathProgression { get; set; } = new();
+    public string? Search { get; set; }
+    public ModuleCategory? CategoryFilter { get; set; }
+    public DifficultyLevel? DifficultyFilter { get; set; }
 }
 
 public class StudyModuleViewModel

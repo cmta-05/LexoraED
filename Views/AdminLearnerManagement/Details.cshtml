@@ -1,0 +1,15 @@
+@model LearnerDetailsViewModel
+@{ ViewData["Title"] = "User Details"; }
+<div class="glass-card" style="padding:1.5rem">
+    <h2>@Model.Learner.FullName</h2>
+    <p><strong>Username:</strong> @Model.Learner.Username</p>
+    <p><strong>Role:</strong> @Model.Learner.Role</p>
+    <p><strong>Status:</strong> @(Model.Learner.IsActive ? "Active" : "Inactive")</p>
+    @if (Model.Progress != null)
+    {
+        <p><strong>Level:</strong> @Model.Progress.CurrentLevel</p>
+        <p><strong>XP:</strong> @Model.Progress.ExperiencePoints</p>
+    }
+    <a asp-action="Edit" asp-route-id="@Model.Learner.Id" class="lex-btn lex-btn-primary">Edit</a>
+    <a asp-action="Index" class="lex-btn lex-btn-ghost">Back</a>
+</div>

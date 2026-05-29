@@ -20,10 +20,10 @@ else
         {
             var levelClass = quiz.DifficultyLevel switch
             {
-                DifficultyLevel.Easy => "lex-badge-easy",
-                DifficultyLevel.Medium => "lex-badge-medium",
-                DifficultyLevel.Hard => "lex-badge-hard",
-                _ => ""
+                DifficultyLevel.Beginner => "lex-badge-beginner",
+                DifficultyLevel.Intermediate => "lex-badge-intermediate",
+                DifficultyLevel.Advanced => "lex-badge-advanced",
+                _ => "lex-badge-beginner"
             };
             <article class="lex-module-card @(quiz.IsLocked ? "locked" : "")">
                 <div class="lex-badge-row">

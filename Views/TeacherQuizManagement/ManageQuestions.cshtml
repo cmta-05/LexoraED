@@ -1,0 +1,22 @@
+@model QuizSet
+@{ ViewData["Title"] = "Quiz: " + Model.LearningModule.Title; var moduleId = (int)ViewBag.ModuleId; }
+
+<a asp-action="Index" class="lex-btn lex-btn-ghost lex-btn-sm">← Back</a>
+<h2 class="lex-section-title">@Model.LearningModule.Title</h2>
+
+@foreach (var q in Model.QuizItems.OrderBy(i => i.Id))
+{
+    <div class="glass-card" style="padding:1rem;margin-bottom:0.75rem">
+        <span class="lex-badge lex-badge-category">@q.QuestionType</span>
+        <p><strong>@q.QuestionText</strong></p>
+        <p style="font-size:0.85rem;color:var(--lex-text-muted)">Answer: @q.CorrectAnswer</p>
+        <form asp-action="DeleteQuestion" method="post" style="margin-top:0.5rem">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="id" value="@q.Id" />
+            <input type="hidden" name="moduleId" value="@moduleId" />
+            <button type="submit" class="lex-btn lex-btn-ghost lex-btn-sm">Remove</button>
+        </form>
+    </div>
+}
+
+<a asp-action="AddQuestion" asp-route-quizSetId="@Model.Id" asp-route-moduleId="@moduleId" class="lex-btn lex-btn-primary">Add Question</a>

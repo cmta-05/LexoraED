@@ -1,0 +1,14 @@
+@model AdminReportViewModel
+@{ ViewData["Title"] = "Platform Report"; }
+
+<div class="glass-card" style="padding:1.5rem">
+    <h1>LexoraED Platform Report</h1>
+    <p>Generated @Model.GeneratedAt.ToString("f")</p>
+    <div class="lex-stat-grid">
+        <div class="lex-stat-card"><div class="lex-stat-label">Users</div><div class="lex-stat-value">@Model.TotalUsers</div></div>
+        <div class="lex-stat-card"><div class="lex-stat-label">Students</div><div class="lex-stat-value">@Model.TotalStudents</div></div>
+        <div class="lex-stat-card"><div class="lex-stat-label">Teachers</div><div class="lex-stat-value">@Model.TotalTeachers</div></div>
+        <div class="lex-stat-card"><div class="lex-stat-label">Avg Score</div><div class="lex-stat-value">@Model.PlatformAverageScore%</div></div>
+    </div>
+    <a asp-action="ExportAdminReport" class="lex-btn lex-btn-primary">Export / Print</a>
+</div>

@@ -7,9 +7,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<LexoraEDContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("LexoraEDConnection")));
 
-builder.Services.AddScoped<LearnerAuthenticationService>();
+builder.Services.AddScoped<ActivityLogService>();
+builder.Services.AddScoped<GamificationService>();
+builder.Services.AddScoped<QuizScoringService>();
 builder.Services.AddScoped<AdaptiveLearningPathService>();
 builder.Services.AddScoped<LearningPathPresentationService>();
+builder.Services.AddScoped<LearnerAuthenticationService>();
+builder.Services.AddScoped<LearnerManagementService>();
+builder.Services.AddScoped<TeacherInsightsService>();
+builder.Services.AddScoped<LexoraReportService>();
 
 builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
@@ -29,6 +35,7 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<LexoraEDContext>();
     context.Database.Migrate();
     LexoraEDSeedData.Initialize(context);
+    LexoraEDCurriculumSeed.EnsureCurriculum(context);
 }
 
 if (!app.Environment.IsDevelopment())

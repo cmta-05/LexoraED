@@ -1,0 +1,33 @@
+@model StudentReportViewModel
+@{ ViewData["Title"] = "My Report"; }
+
+<div class="glass-card" style="padding:1.5rem" id="printableReport">
+    <h1>LexoraED Student Report</h1>
+    <p><strong>@Model.LearnerName</strong> · Generated @Model.GeneratedAt.ToString("f")</p>
+    <p>Average Score: @Model.Analytics.AverageScore% · Level: @Model.Analytics.CurrentLevel · Completed: @Model.Analytics.CompletedModulesCount</p>
+
+    <h2>Category Performance</h2>
+    @foreach (var c in Model.Analytics.CategoryProgress)
+    {
+        <p>@c.Category: @c.CompletedModules/@c.TotalModules (@c.ProgressPercent%)</p>
+    }
+
+    <h2>Quiz History</h2>
+    @foreach (var a in Model.QuizAttempts)
+    {
+        <p>@a.ModuleTitle — @a.Score% — @a.AttemptDate.ToLocalTime().ToString("g")</p>
+    }
+
+    @if (Model.Badges.Any())
+    {
+        <h2>Badges</h2>
+        <p>@string.Join(", ", Model.Badges)</p>
+    }
+</div>
+
+<form method="get" class="lex-filter-bar glass-card" style="margin-bottom:1rem">
+    <input type="date" name="from" class="lex-form-input" />
+    <input type="date" name="to" class="lex-form-input" />
+    <button type="submit" class="lex-btn lex-btn-secondary">Filter</button>
+    <a asp-action="ExportStudentReport" asp-route-from="@Model.FromDate" asp-route-to="@Model.ToDate" class="lex-btn lex-btn-primary">Export / Print</a>
+</form>

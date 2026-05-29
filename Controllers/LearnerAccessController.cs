@@ -93,9 +93,11 @@ public class LearnerAccessController : Controller
     private IActionResult RedirectToRoleHome(LearnerRole? role = null)
     {
         var roleString = role?.ToString() ?? HttpContext.Session.GetString(LearnerSessionKeys.LearnerRole);
-        if (roleString == LearnerRole.Admin.ToString())
-            return RedirectToAction("Index", "AdminLearningModule");
-
-        return RedirectToAction("Dashboard", "StudentLearning");
+        return roleString switch
+        {
+            nameof(LearnerRole.Admin) => RedirectToAction("Index", "AdminLearnerManagement"),
+            nameof(LearnerRole.Teacher) => RedirectToAction("Dashboard", "TeacherDashboard"),
+            _ => RedirectToAction("Dashboard", "StudentLearning")
+        };
     }
 }

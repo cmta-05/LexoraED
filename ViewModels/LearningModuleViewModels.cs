@@ -32,6 +32,7 @@ public class QuizSubmissionViewModel
 public class QuizAnswerViewModel
 {
     public int QuizItemId { get; set; }
+    public QuizQuestionType QuestionType { get; set; }
     public string QuestionText { get; set; } = string.Empty;
     public string ChoiceA { get; set; } = string.Empty;
     public string ChoiceB { get; set; } = string.Empty;
@@ -49,18 +50,31 @@ public class QuizResultViewModel
     public DifficultyLevel RecommendedLevel { get; set; }
     public DifficultyLevel CurrentLevel { get; set; }
     public int CompletedModulesCount { get; set; }
+    public int ExperiencePoints { get; set; }
+    public int CurrentStreak { get; set; }
     public int ModuleId { get; set; }
     public string ModuleTitle { get; set; } = string.Empty;
+    public List<QuizAnswerReviewViewModel> AnswerReviews { get; set; } = new();
 }
 
 public static class QuizFeedbackHelper
 {
     public static (string Tier, string Headline) GetFeedback(int score) => score switch
     {
-        >= 80 => ("Excellent mastery", "Outstanding work!"),
-        >= 50 => ("Good progress", "You're on the right track."),
+        >= 76 => ("Excellent mastery", "Outstanding work!"),
+        >= 51 => ("Good progress", "You're on the right track."),
         _ => ("Needs improvement", "Keep practicing — you've got this.")
     };
+}
+
+public class QuizAnswerReviewViewModel
+{
+    public string QuestionText { get; set; } = string.Empty;
+    public string? SelectedAnswer { get; set; }
+    public string CorrectAnswer { get; set; } = string.Empty;
+    public bool IsCorrect { get; set; }
+    public string? Explanation { get; set; }
+    public QuizQuestionType QuestionType { get; set; }
 }
 
 public class StudentDashboardViewModel

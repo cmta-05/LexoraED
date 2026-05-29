@@ -1,0 +1,9 @@
+@model TeacherReportViewModel
+@{ ViewData["Title"] = "Class Report"; }
+
+<div class="glass-card" style="padding:1.5rem">
+    <h1>Teacher Performance Report</h1>
+    <p>Generated @Model.GeneratedAt.ToString("f")</p>
+    <p>Students: @Model.Analytics.StudentSummaries.Count</p>
+    <a asp-action="ExportTeacherReport" class="lex-btn lex-btn-primary">Export / Print</a>
+</div>

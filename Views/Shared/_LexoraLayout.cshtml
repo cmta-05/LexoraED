@@ -5,6 +5,8 @@
     var role = Context.Session.GetString(LearnerSessionKeys.LearnerRole);
     var fullName = Context.Session.GetString(LearnerSessionKeys.LearnerFullName) ?? "Learner";
     var isAdmin = role == LearnerRole.Admin.ToString();
+    var isTeacher = role == LearnerRole.Teacher.ToString();
+    var isStudent = role == LearnerRole.Student.ToString();
     var initials = string.Join("", fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => w[0])).ToUpper();
     if (string.IsNullOrEmpty(initials)) { initials = "L"; }
     var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
@@ -21,79 +23,52 @@
 </head>
 <body class="lexora-body">
 <div class="lex-app">
-    <aside class="lex-sidebar">
+    <aside class="lex-sidebar" id="lexSidebar">
         <div class="lex-brand">
-            <a class="lex-brand-logo" asp-controller="Home" asp-action="Index">
-                Lexora<span>ED</span>
-            </a>
-            <div class="lex-brand-tagline">Adaptive English Learning</div>
+            <a class="lex-brand-logo" asp-controller="Home" asp-action="Index">Lexora<span>ED</span></a>
+            <div class="lex-brand-tagline">Violet Dusk · Adaptive LMS</div>
         </div>
         <ul class="lex-nav">
             @if (isAdmin)
             {
-                <li class="lex-nav-item">
-                    <a class="lex-nav-link @(controller == "AdminLearningModule" && action == "Index" ? "active" : "")"
-                       asp-controller="AdminLearningModule" asp-action="Index">
-                        <svg class="lex-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                        Learning Modules
-                    </a>
-                </li>
-                <li class="lex-nav-item">
-                    <a class="lex-nav-link @(controller == "AdminLearningModule" && action == "ProgressAnalytics" ? "active" : "")"
-                       asp-controller="AdminLearningModule" asp-action="ProgressAnalytics">
-                        <svg class="lex-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                        Progress Analytics
-                    </a>
-                </li>
+                <li class="lex-nav-item"><a class="lex-nav-link @(controller == "AdminLearnerManagement" ? "active" : "")" asp-controller="AdminLearnerManagement" asp-action="Index">User Management</a></li>
+                <li class="lex-nav-item"><a class="lex-nav-link @(controller == "AdminLearningModule" ? "active" : "")" asp-controller="AdminLearningModule" asp-action="Index">Learning Modules</a></li>
+                <li class="lex-nav-item"><a class="lex-nav-link @(controller == "AdminLearningModule" && action == "ProgressAnalytics" ? "active" : "")" asp-controller="AdminLearningModule" asp-action="ProgressAnalytics">Analytics</a></li>
+                <li class="lex-nav-item"><a class="lex-nav-link @(controller == "LexoraReports" ? "active" : "")" asp-controller="LexoraReports" asp-action="AdminReport">Reports</a></li>
             }
-            else
+            else if (isTeacher)
             {
-                <li class="lex-nav-item">
-                    <a class="lex-nav-link @(controller == "StudentLearning" && action == "Dashboard" ? "active" : "")"
-                       asp-controller="StudentLearning" asp-action="Dashboard">
-                        <svg class="lex-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-                        Dashboard
-                    </a>
-                </li>
-                <li class="lex-nav-item">
-                    <a class="lex-nav-link @(controller == "StudentLearning" && action == "LearningModules" ? "active" : "")"
-                       asp-controller="StudentLearning" asp-action="LearningModules">
-                        <svg class="lex-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                        Learning Modules
-                    </a>
-                </li>
-                <li class="lex-nav-item">
-                    <a class="lex-nav-link @(controller == "QuizAssessment" ? "active" : "")"
-                       asp-controller="QuizAssessment" asp-action="QuizCenter">
-                        <svg class="lex-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                        Quiz Center
-                    </a>
-                </li>
-                <li class="lex-nav-item">
-                    <a class="lex-nav-link @(controller == "StudentLearning" && action == "ProgressAnalytics" ? "active" : "")"
-                       asp-controller="StudentLearning" asp-action="ProgressAnalytics">
-                        <svg class="lex-nav-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                        Progress Analytics
-                    </a>
-                </li>
+                <li class="lex-nav-item"><a class="lex-nav-link @(controller == "TeacherDashboard" && action == "Dashboard" ? "active" : "")" asp-controller="TeacherDashboard" asp-action="Dashboard">Teacher Dashboard</a></li>
+                <li class="lex-nav-item"><a class="lex-nav-link @(controller == "TeacherLearningModule" ? "active" : "")" asp-controller="TeacherLearningModule" asp-action="Index">Module Management</a></li>
+                <li class="lex-nav-item"><a class="lex-nav-link @(controller == "TeacherQuizManagement" ? "active" : "")" asp-controller="TeacherQuizManagement" asp-action="Index">Quiz Management</a></li>
+                <li class="lex-nav-item"><a class="lex-nav-link @(controller == "TeacherDashboard" && action == "ProgressAnalytics" ? "active" : "")" asp-controller="TeacherDashboard" asp-action="ProgressAnalytics">Student Analytics</a></li>
+                <li class="lex-nav-item"><a class="lex-nav-link @(controller == "LexoraReports" ? "active" : "")" asp-controller="LexoraReports" asp-action="TeacherReport">Reports</a></li>
+            }
+            else if (isStudent)
+            {
+                <li class="lex-nav-item"><a class="lex-nav-link @(controller == "StudentLearning" && action == "Dashboard" ? "active" : "")" asp-controller="StudentLearning" asp-action="Dashboard">Dashboard</a></li>
+                <li class="lex-nav-item"><a class="lex-nav-link @(controller == "StudentLearning" && action == "LearningPathMap" ? "active" : "")" asp-controller="StudentLearning" asp-action="LearningPathMap">Learning Path</a></li>
+                <li class="lex-nav-item"><a class="lex-nav-link @(controller == "StudentLearning" && action == "LearningModules" ? "active" : "")" asp-controller="StudentLearning" asp-action="LearningModules">Learning Modules</a></li>
+                <li class="lex-nav-item"><a class="lex-nav-link @(controller == "QuizAssessment" ? "active" : "")" asp-controller="QuizAssessment" asp-action="QuizCenter">Quiz Center</a></li>
+                <li class="lex-nav-item"><a class="lex-nav-link @(controller == "StudentLearning" && action == "ProgressAnalytics" ? "active" : "")" asp-controller="StudentLearning" asp-action="ProgressAnalytics">Progress Analytics</a></li>
+                <li class="lex-nav-item"><a class="lex-nav-link @(controller == "LexoraReports" ? "active" : "")" asp-controller="LexoraReports" asp-action="StudentReport">Reports</a></li>
             }
         </ul>
         <div class="lex-sidebar-footer">
             <form asp-controller="LearnerAccess" asp-action="Logout" method="post">
                 @Html.AntiForgeryToken()
-                <button type="submit" class="lex-btn lex-btn-ghost lex-btn-block" style="color: rgba(255,255,255,0.8); border-color: rgba(255,255,255,0.2);">
-                    Sign Out
-                </button>
+                <button type="submit" class="lex-btn lex-btn-ghost lex-btn-block lex-signout">Sign Out</button>
             </form>
         </div>
     </aside>
     <div class="lex-main-wrap">
-        <header class="lex-header">
+        <header class="lex-header glass-header">
+            <button type="button" class="lex-sidebar-toggle" id="sidebarToggle" aria-label="Toggle menu">☰</button>
             <h1 class="lex-header-title">@ViewData["Title"]</h1>
             <div class="lex-header-user">
                 <div>
                     <div class="lex-user-name">@fullName</div>
-                    <div class="lex-user-role">@(isAdmin ? "Administrator" : "Student")</div>
+                    <div class="lex-user-role">@(isAdmin ? "Administrator" : isTeacher ? "Teacher" : "Student")</div>
                 </div>
                 <div class="lex-avatar">@initials</div>
             </div>
@@ -107,6 +82,11 @@
         </main>
     </div>
 </div>
+<script>
+    document.getElementById('sidebarToggle')?.addEventListener('click', () => {
+        document.getElementById('lexSidebar')?.classList.toggle('open');
+    });
+</script>
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

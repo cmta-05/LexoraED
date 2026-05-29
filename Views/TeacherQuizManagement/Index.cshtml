@@ -1,0 +1,14 @@
+@model IEnumerable<LearningModule>
+@{ ViewData["Title"] = "Quiz Management"; }
+
+@foreach (var module in Model)
+{
+    var count = module.QuizSets.SelectMany(q => q.QuizItems).Count();
+    <div class="glass-card lex-admin-card">
+        <div>
+            <strong>@module.Title</strong>
+            <div style="font-size:0.85rem;color:var(--lex-text-muted)">@count questions</div>
+        </div>
+        <a asp-action="ManageQuestions" asp-route-moduleId="@module.Id" class="lex-btn lex-btn-primary lex-btn-sm">Manage Questions</a>
+    </div>
+}

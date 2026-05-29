@@ -1,0 +1,49 @@
+@model LearnerManagementIndexViewModel
+@{ ViewData["Title"] = "User Management"; }
+
+<form method="get" class="glass-card lex-filter-bar">
+    <input type="text" name="search" value="@Model.Search" placeholder="Search username or name..." class="lex-form-input" style="flex:1;min-width:180px" />
+    <select name="role" class="lex-form-input">
+        <option value="">All roles</option>
+        @foreach (var r in Enum.GetValues<LearnerRole>())
+        {
+            <option value="@r" selected="@(Model.RoleFilter == r)">@r</option>
+        }
+    </select>
+    <button type="submit" class="lex-btn lex-btn-primary">Filter</button>
+    <a asp-action="Create" class="lex-btn lex-btn-secondary">Create User</a>
+</form>
+
+<div class="lex-module-grid">
+    @foreach (var user in Model.Learners)
+    {
+        <div class="glass-card lex-user-card">
+            <div>
+                <strong>@user.FullName</strong>
+                <div style="color:var(--lex-text-muted);font-size:0.85rem">@user.Username</div>
+                <div style="margin-top:0.5rem">
+                    <span class="lex-role-badge lex-role-@user.Role.ToString().ToLower()">@user.Role</span>
+                    <span class="@(user.IsActive ? "lex-status-active" : "lex-status-inactive")">
+                        @(user.IsActive ? "Active" : "Inactive")
+                    </span>
+                </div>
+            </div>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+                <a asp-action="Details" asp-route-id="@user.Id" class="lex-btn lex-btn-ghost lex-btn-sm">Details</a>
+                <a asp-action="Edit" asp-route-id="@user.Id" class="lex-btn lex-btn-secondary lex-btn-sm">Edit</a>
+                <a asp-action="Delete" asp-route-id="@user.Id" class="lex-btn lex-btn-ghost lex-btn-sm" style="color:var(--lex-rose)">Delete</a>
+            </div>
+        </div>
+    }
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <nav class="lex-pagination">
+        @for (var p = 1; p <= Model.TotalPages; p++)
+        {
+            <a asp-action="Index" asp-route-page="@p" asp-route-search="@Model.Search" asp-route-role="@Model.RoleFilter"
+               class="lex-btn lex-btn-sm @(p == Model.Page ? "lex-btn-primary" : "lex-btn-ghost")">@p</a>
+        }
+    </nav>
+}

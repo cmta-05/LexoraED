@@ -1,3 +1,4 @@
+using LexoraED.Models;
 using LexoraED.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,22 +11,19 @@ public class HomeController : Controller
         if (HttpContext.Session.GetInt32(LearnerSessionKeys.LearnerId).HasValue)
         {
             var role = HttpContext.Session.GetString(LearnerSessionKeys.LearnerRole);
-            if (role == "Admin")
-                return RedirectToAction("Index", "AdminLearningModule");
-            return RedirectToAction("Dashboard", "StudentLearning");
+            return role switch
+            {
+                nameof(LearnerRole.Admin) => RedirectToAction("Index", "AdminLearnerManagement"),
+                nameof(LearnerRole.Teacher) => RedirectToAction("Dashboard", "TeacherDashboard"),
+                _ => RedirectToAction("Dashboard", "StudentLearning")
+            };
         }
 
         return RedirectToAction("Login", "LearnerAccess");
     }
 
-    public IActionResult Privacy()
-    {
-        return View();
-    }
+    public IActionResult Privacy() => View();
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-    public IActionResult Error()
-    {
-        return View();
-    }
+    public IActionResult Error() => View();
 }

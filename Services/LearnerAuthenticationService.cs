@@ -48,9 +48,15 @@ public class LearnerAuthenticationService
             _context.LearningProgresses.Add(new LearningProgress
             {
                 LearnerId = learner.Id,
-                CurrentLevel = DifficultyLevel.Easy,
+                CurrentLevel = DifficultyLevel.Beginner,
                 CompletedModulesCount = 0
             });
+            await _context.SaveChangesAsync();
+        }
+
+        if (role == LearnerRole.Teacher)
+        {
+            _context.TeacherProfiles.Add(new TeacherProfile { LearnerId = learner.Id });
             await _context.SaveChangesAsync();
         }
 
@@ -64,7 +70,12 @@ public class LearnerAuthenticationService
         var learner = await _context.Learners
             .FirstOrDefaultAsync(l => l.Username == username);
 
-        if (learner == null || !LearnerCredentialHasher.VerifyPassword(password, learner.PasswordHash))
+        if (learner == null || !learner.IsActive)
+        {
+            return (false, "Invalid username or password.", null);
+        }
+
+        if (!LearnerCredentialHasher.VerifyPassword(password, learner.PasswordHash))
         {
             return (false, "Invalid username or password.", null);
         }

@@ -45,11 +45,17 @@
     });
   }
 
+  function slideAnswered(slide) {
+    const radio = slide.querySelector('input[type="radio"]:checked');
+    if (radio) return true;
+    const text = slide.querySelector('input[type="text"], input:not([type="hidden"]):not([type="radio"])');
+    return text && text.value.trim().length > 0;
+  }
+
   if (btnNext) {
     btnNext.addEventListener('click', () => {
       const slide = slides[current];
-      const answered = slide.querySelector('input[type="radio"]:checked');
-      if (!answered) {
+      if (!slideAnswered(slide)) {
         slide.classList.add('lex-shake');
         setTimeout(() => slide.classList.remove('lex-shake'), 400);
         return;
@@ -59,13 +65,11 @@
   }
 
   form.addEventListener('submit', function (e) {
-    const unanswered = form.querySelectorAll('.lex-quiz-slide').length -
-      form.querySelectorAll('input[type="radio"]:checked').length;
-    if (unanswered > 0) {
+    const firstEmpty = Array.from(slides).findIndex(s => !slideAnswered(s));
+    if (firstEmpty >= 0) {
       e.preventDefault();
       alert('Please answer all ' + slides.length + ' questions before submitting.');
-      const firstEmpty = Array.from(slides).findIndex(s => !s.querySelector('input:checked'));
-      if (firstEmpty >= 0) showSlide(firstEmpty);
+      showSlide(firstEmpty);
     }
   });
 })();

@@ -1,0 +1,12 @@
+@model LearnerCardViewModel
+@{ ViewData["Title"] = "Delete User"; }
+<div class="glass-card" style="padding:1.5rem;max-width:480px">
+    <h2>Confirm Delete</h2>
+    <p>Delete <strong>@Model.FullName</strong> (@Model.Username)? This cannot be undone.</p>
+    <form asp-action="DeleteConfirmed" method="post">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="id" value="@Model.Id" />
+        <button type="submit" class="lex-btn lex-btn-primary" style="background:var(--lex-rose)">Delete</button>
+        <a asp-action="Index" class="lex-btn lex-btn-ghost">Cancel</a>
+    </form>
+</div>

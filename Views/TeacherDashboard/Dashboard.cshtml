@@ -1,0 +1,41 @@
+@model TeacherDashboardViewModel
+@{ ViewData["Title"] = "Teacher Dashboard"; }
+
+<div class="lex-stat-grid">
+    <div class="glass-card lex-stat-card"><div class="lex-stat-label">Total Students</div><div class="lex-stat-value">@Model.TotalStudents</div></div>
+    <div class="glass-card lex-stat-card"><div class="lex-stat-label">Average Score</div><div class="lex-stat-value">@Model.AverageStudentScore%</div></div>
+    <div class="glass-card lex-stat-card"><div class="lex-stat-label">Hardest Category</div><div class="lex-stat-value" style="font-size:1.1rem">@Model.MostDifficultCategory</div></div>
+    <div class="glass-card lex-stat-card"><div class="lex-stat-label">Completion Rate</div><div class="lex-stat-value">@Model.LearningCompletionRate%</div></div>
+</div>
+
+<div class="lex-analytics-grid">
+    <div class="glass-card lex-panel">
+        <h3 class="lex-panel-title">Category Performance</h3>
+        @foreach (var pt in Model.CategoryChartData)
+        {
+            <div class="lex-category-bar">
+                <div class="lex-category-bar-header"><span>@pt.Label</span><span>@pt.Value%</span></div>
+                <div class="lex-chart-bar"><div class="lex-chart-bar-fill" style="width:@pt.Value%"></div></div>
+            </div>
+        }
+    </div>
+    <div class="glass-card lex-panel">
+        <h3 class="lex-panel-title">Quiz Score Trend</h3>
+        @foreach (var pt in Model.ScoreTrendData)
+        {
+            <div class="lex-category-bar">
+                <div class="lex-category-bar-header"><span>@pt.Label</span><span>@pt.Value%</span></div>
+                <div class="lex-chart-bar"><div class="lex-chart-bar-fill" style="width:@pt.Value%"></div></div>
+            </div>
+        }
+    </div>
+</div>
+
+<h2 class="lex-section-title">Recent Student Activity</h2>
+@foreach (var act in Model.RecentActivity)
+{
+    <div class="glass-card lex-learner-row">
+        <span><strong>@act.StudentName</strong> — @act.ModuleTitle</span>
+        <span>@act.Score% · @act.AttemptDate.ToLocalTime().ToString("g")</span>
+    </div>
+}

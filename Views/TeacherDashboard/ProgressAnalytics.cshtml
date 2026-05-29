@@ -1,0 +1,28 @@
+@model TeacherAnalyticsViewModel
+@{ ViewData["Title"] = "Student Analytics"; }
+
+<div class="lex-stat-grid">
+    <div class="glass-card lex-stat-card"><div class="lex-stat-label">Students</div><div class="lex-stat-value">@Model.Dashboard.TotalStudents</div></div>
+    <div class="glass-card lex-stat-card"><div class="lex-stat-label">Class Average</div><div class="lex-stat-value">@Model.Dashboard.AverageStudentScore%</div></div>
+</div>
+
+<h2 class="lex-section-title">Student Performance</h2>
+@foreach (var s in Model.StudentSummaries)
+{
+    <div class="glass-card lex-learner-row">
+        <div><strong>@s.FullName</strong><br /><small>@s.CurrentLevel · @s.CompletedModules modules mastered</small></div>
+        <strong>@s.AverageScore% avg</strong>
+    </div>
+}
+
+<h2 class="lex-section-title">Weak Category Overview</h2>
+@foreach (var c in Model.WeakCategories)
+{
+    <div class="glass-card lex-category-bar" style="padding:1rem;margin-bottom:0.5rem">
+        <div class="lex-category-bar-header">
+            <span><strong>@c.Category</strong> @(c.IsWeakArea ? "⚠ Weak area" : "")</span>
+            <span>@c.AverageScore% · @c.AttemptCount attempts</span>
+        </div>
+        <div class="lex-chart-bar"><div class="lex-chart-bar-fill" style="width:@c.AverageScore%"></div></div>
+    </div>
+}

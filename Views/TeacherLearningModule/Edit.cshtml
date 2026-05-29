@@ -1,0 +1,12 @@
+@model LearningModuleFormViewModel
+@{ ViewData["Title"] = "Edit Module"; }
+<div class="glass-card" style="padding:1.5rem;max-width:640px">
+    <h2>Edit Module</h2>
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="Id" />
+        <partial name="~/Views/AdminLearningModule/_LearningModuleFormLexora.cshtml" model="Model" />
+        <button type="submit" class="lex-btn lex-btn-primary">Save</button>
+        <a asp-action="Index" class="lex-btn lex-btn-ghost">Cancel</a>
+    </form>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

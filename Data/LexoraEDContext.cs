@@ -16,6 +16,11 @@ public class LexoraEDContext : DbContext
     public DbSet<QuizItem> QuizItems => Set<QuizItem>();
     public DbSet<LearningAttempt> LearningAttempts => Set<LearningAttempt>();
     public DbSet<LearningProgress> LearningProgresses => Set<LearningProgress>();
+    public DbSet<ModuleProgress> ModuleProgresses => Set<ModuleProgress>();
+    public DbSet<TeacherProfile> TeacherProfiles => Set<TeacherProfile>();
+    public DbSet<AchievementBadge> AchievementBadges => Set<AchievementBadge>();
+    public DbSet<LearnerAchievement> LearnerAchievements => Set<LearnerAchievement>();
+    public DbSet<ActivityLog> ActivityLogs => Set<ActivityLog>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,6 +36,15 @@ public class LexoraEDContext : DbContext
             entity.Property(e => e.Role).HasConversion<string>().HasMaxLength(20);
         });
 
+        modelBuilder.Entity<TeacherProfile>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasOne(e => e.Learner)
+                .WithOne(l => l.TeacherProfile)
+                .HasForeignKey<TeacherProfile>(e => e.LearnerId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
         modelBuilder.Entity<LearningModule>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -38,12 +52,16 @@ public class LexoraEDContext : DbContext
             entity.Property(e => e.Description).HasMaxLength(1000);
             entity.Property(e => e.Category).HasConversion<string>().HasMaxLength(50);
             entity.Property(e => e.DifficultyLevel).HasConversion<string>().HasMaxLength(20);
+
+            entity.HasOne(e => e.PrerequisiteModule)
+                .WithMany()
+                .HasForeignKey(e => e.PrerequisiteModuleId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<QuizSet>(entity =>
         {
             entity.HasKey(e => e.Id);
-
             entity.HasOne(e => e.LearningModule)
                 .WithMany(m => m.QuizSets)
                 .HasForeignKey(e => e.LearningModuleId)
@@ -53,8 +71,9 @@ public class LexoraEDContext : DbContext
         modelBuilder.Entity<QuizItem>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.QuestionText).HasMaxLength(500).IsRequired();
-            entity.Property(e => e.CorrectAnswer).HasMaxLength(1).IsRequired();
+            entity.Property(e => e.QuestionText).HasMaxLength(1000).IsRequired();
+            entity.Property(e => e.CorrectAnswer).HasMaxLength(500).IsRequired();
+            entity.Property(e => e.QuestionType).HasConversion<string>().HasMaxLength(30);
 
             entity.HasOne(e => e.QuizSet)
                 .WithMany(q => q.QuizItems)
@@ -65,12 +84,10 @@ public class LexoraEDContext : DbContext
         modelBuilder.Entity<LearningAttempt>(entity =>
         {
             entity.HasKey(e => e.Id);
-
             entity.HasOne(e => e.Learner)
                 .WithMany(l => l.LearningAttempts)
                 .HasForeignKey(e => e.LearnerId)
                 .OnDelete(DeleteBehavior.Cascade);
-
             entity.HasOne(e => e.QuizSet)
                 .WithMany(q => q.LearningAttempts)
                 .HasForeignKey(e => e.QuizSetId)
@@ -81,10 +98,54 @@ public class LexoraEDContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.CurrentLevel).HasConversion<string>().HasMaxLength(20);
-
             entity.HasOne(e => e.Learner)
                 .WithOne(l => l.LearningProgress)
                 .HasForeignKey<LearningProgress>(e => e.LearnerId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ModuleProgress>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.LearnerId, e.LearningModuleId }).IsUnique();
+            entity.HasOne(e => e.Learner)
+                .WithMany(l => l.ModuleProgresses)
+                .HasForeignKey(e => e.LearnerId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.LearningModule)
+                .WithMany(m => m.ModuleProgresses)
+                .HasForeignKey(e => e.LearningModuleId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AchievementBadge>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.Property(e => e.Title).HasMaxLength(120).IsRequired();
+        });
+
+        modelBuilder.Entity<LearnerAchievement>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.HasIndex(e => new { e.LearnerId, e.AchievementBadgeId }).IsUnique();
+            entity.HasOne(e => e.Learner)
+                .WithMany(l => l.LearnerAchievements)
+                .HasForeignKey(e => e.LearnerId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(e => e.AchievementBadge)
+                .WithMany(b => b.LearnerAchievements)
+                .HasForeignKey(e => e.AchievementBadgeId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ActivityLog>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ActivityType).HasMaxLength(80).IsRequired();
+            entity.HasOne(e => e.Learner)
+                .WithMany(l => l.ActivityLogs)
+                .HasForeignKey(e => e.LearnerId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }
