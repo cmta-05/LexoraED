@@ -1,0 +1,72 @@
+@model UserDetailsViewModel
+@using LexoraED.Models
+@{ ViewData["Title"] = "User Details"; }
+
+<div class="glass-card" style="padding:1.5rem;max-width:720px">
+    <h2 style="margin-top:0">@Model.FullName</h2>
+    <p><strong>Username:</strong> @Model.Username</p>
+    <p><strong>Email:</strong> @Model.Email</p>
+    <p><strong>Role:</strong> @Model.Role</p>
+    <p><strong>Status:</strong> <span class="lex-status-@Model.AccountStatus.ToString().ToLower()">@Model.AccountStatus</span></p>
+    <p><strong>Active:</strong> @(Model.IsActive ? "Yes" : "No")</p>
+    <p><strong>Registered:</strong> @Model.CreatedAt.ToLocalTime().ToString("f")</p>
+
+    @if (Model.StudentProfile != null)
+    {
+        <hr />
+        <h3>Student Profile</h3>
+        <p><strong>Student ID:</strong> @Model.StudentProfile.StudentIdNumber</p>
+        <p><strong>Learning Preference:</strong> @(Model.StudentProfile.LearningPreference ?? "—")</p>
+        @if (Model.LearningProgress != null)
+        {
+            <p><strong>Level:</strong> @Model.LearningProgress.CurrentLevel</p>
+            <p><strong>Modules completed:</strong> @Model.LearningProgress.CompletedModulesCount</p>
+        }
+    }
+
+    @if (Model.TeacherProfile != null)
+    {
+        <hr />
+        <h3>Teacher Profile</h3>
+        <p><strong>Teacher ID:</strong> @Model.TeacherProfile.TeacherIdNumber</p>
+        <p><strong>School:</strong> @Model.TeacherProfile.SchoolName</p>
+        <p><strong>Department:</strong> @Model.TeacherProfile.Department</p>
+        <p><strong>Specialization:</strong> @Model.TeacherProfile.SubjectSpecialization</p>
+        <p><strong>Contact:</strong> @Model.TeacherProfile.ContactNumber</p>
+    }
+
+    <div style="margin-top:1.5rem;display:flex;gap:0.5rem;flex-wrap:wrap">
+        <a asp-action="Index" class="lex-btn lex-btn-ghost">Back</a>
+        @if (Model.Role == LexoraRoles.Teacher && Model.AccountStatus == AccountStatus.Pending)
+        {
+            <form asp-action="ApproveTeacher" method="post" style="display:inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type="submit" class="lex-btn lex-btn-primary">Approve Teacher</button>
+            </form>
+            <form asp-action="RejectTeacher" method="post" style="display:inline" onsubmit="return confirm('Reject this teacher account?');">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <button type="submit" class="lex-btn lex-btn-ghost" style="color:var(--lex-rose)">Reject</button>
+            </form>
+        }
+        @if (Model.IsActive)
+        {
+            <form asp-action="ToggleActive" method="post" style="display:inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <input type="hidden" name="isActive" value="false" />
+                <button type="submit" class="lex-btn lex-btn-secondary">Deactivate Account</button>
+            </form>
+        }
+        else
+        {
+            <form asp-action="ToggleActive" method="post" style="display:inline">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.Id" />
+                <input type="hidden" name="isActive" value="true" />
+                <button type="submit" class="lex-btn lex-btn-primary">Activate Account</button>
+            </form>
+        }
+    </div>
+</div>

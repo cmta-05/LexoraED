@@ -1,25 +1,22 @@
 using LexoraED.Models;
-using LexoraED.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LexoraED.Controllers;
 
 public class HomeController : Controller
 {
+    [AllowAnonymous]
     public IActionResult Index()
     {
-        if (HttpContext.Session.GetInt32(LearnerSessionKeys.LearnerId).HasValue)
-        {
-            var role = HttpContext.Session.GetString(LearnerSessionKeys.LearnerRole);
-            return role switch
-            {
-                nameof(LearnerRole.Admin) => RedirectToAction("Index", "AdminLearnerManagement"),
-                nameof(LearnerRole.Teacher) => RedirectToAction("Dashboard", "TeacherDashboard"),
-                _ => RedirectToAction("Dashboard", "StudentLearning")
-            };
-        }
+        if (User.Identity?.IsAuthenticated != true)
+            return RedirectToAction("Login", "Account");
 
-        return RedirectToAction("Login", "LearnerAccess");
+        if (User.IsInRole(LexoraRoles.Admin))
+            return RedirectToAction("Index", "AdminAccount");
+        if (User.IsInRole(LexoraRoles.Teacher))
+            return RedirectToAction("Dashboard", "TeacherDashboard");
+        return RedirectToAction("Dashboard", "StudentLearning");
     }
 
     public IActionResult Privacy() => View();

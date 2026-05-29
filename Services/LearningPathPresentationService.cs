@@ -16,12 +16,12 @@ public class LearningPathPresentationService
         _gamificationService = gamificationService;
     }
 
-    public async Task<LearningPathDashboardViewModel> BuildDashboardAsync(int learnerId, string learnerName)
+    public async Task<LearningPathDashboardViewModel> BuildDashboardAsync(string userId, string learnerName)
     {
-        var pathData = await BuildPathDataAsync(learnerId);
+        var pathData = await BuildPathDataAsync(userId);
         var progress = await _context.LearningProgresses.AsNoTracking()
-            .FirstOrDefaultAsync(p => p.LearnerId == learnerId);
-        var badges = await _gamificationService.GetLearnerBadgesAsync(learnerId);
+            .FirstOrDefaultAsync(p => p.UserId == userId);
+        var badges = await _gamificationService.GetLearnerBadgesAsync(userId);
         var totalModules = pathData.Tiers.SelectMany(t => t.Modules).Count();
         var completed = pathData.Tiers.SelectMany(t => t.Modules).Count(m => m.IsCompleted);
 
@@ -48,9 +48,9 @@ public class LearningPathPresentationService
     }
 
     public async Task<LearningModulesPageViewModel> BuildModulesPageAsync(
-        int learnerId, string? search, ModuleCategory? category, DifficultyLevel? difficulty)
+        string userId, string? search, ModuleCategory? category, DifficultyLevel? difficulty)
     {
-        var pathData = await BuildPathDataAsync(learnerId);
+        var pathData = await BuildPathDataAsync(userId);
         var tiers = pathData.Tiers;
 
         if (!string.IsNullOrWhiteSpace(search) || category.HasValue || difficulty.HasValue)
@@ -79,7 +79,7 @@ public class LearningPathPresentationService
         };
     }
 
-    public async Task<StudyModuleViewModel?> BuildStudyModuleAsync(int learnerId, int moduleId)
+    public async Task<StudyModuleViewModel?> BuildStudyModuleAsync(string userId, int moduleId)
     {
         var module = await _context.LearningModules
             .AsNoTracking()
@@ -88,7 +88,7 @@ public class LearningPathPresentationService
 
         if (module == null) return null;
 
-        var pathData = await BuildPathDataAsync(learnerId);
+        var pathData = await BuildPathDataAsync(userId);
         var card = pathData.Tiers.SelectMany(t => t.Modules).FirstOrDefault(m => m.Id == moduleId);
 
         return new StudyModuleViewModel
@@ -104,14 +104,14 @@ public class LearningPathPresentationService
         };
     }
 
-    public async Task<QuizCenterViewModel> BuildQuizCenterAsync(int learnerId)
+    public async Task<QuizCenterViewModel> BuildQuizCenterAsync(string userId)
     {
-        var pathData = await BuildPathDataAsync(learnerId);
+        var pathData = await BuildPathDataAsync(userId);
         var modules = pathData.Tiers.SelectMany(t => t.Modules).Where(m => m.HasQuiz).ToList();
         var quizSets = await _context.QuizSets.AsNoTracking().Include(q => q.QuizItems)
             .Where(q => modules.Select(m => m.Id).Contains(q.LearningModuleId)).ToListAsync();
         var attempts = await _context.LearningAttempts.AsNoTracking().Include(a => a.QuizSet)
-            .Where(a => a.LearnerId == learnerId).ToListAsync();
+            .Where(a => a.UserId == userId).ToListAsync();
 
         return new QuizCenterViewModel
         {
@@ -132,14 +132,14 @@ public class LearningPathPresentationService
         };
     }
 
-    public async Task<StudentProgressAnalyticsViewModel> BuildStudentAnalyticsAsync(int learnerId, string learnerName)
+    public async Task<StudentProgressAnalyticsViewModel> BuildStudentAnalyticsAsync(string userId, string learnerName)
     {
-        var pathData = await BuildPathDataAsync(learnerId);
+        var pathData = await BuildPathDataAsync(userId);
         var attempts = await _context.LearningAttempts.AsNoTracking()
             .Include(a => a.QuizSet).ThenInclude(q => q.LearningModule)
-            .Where(a => a.LearnerId == learnerId).OrderByDescending(a => a.AttemptDate).ToListAsync();
+            .Where(a => a.UserId == userId).OrderByDescending(a => a.AttemptDate).ToListAsync();
         var allModules = await _context.LearningModules.AsNoTracking().ToListAsync();
-        var completedModuleIds = await GetCompletedModuleIdsAsync(learnerId);
+        var completedModuleIds = await GetCompletedModuleIdsAsync(userId);
 
         var categoryProgress = Enum.GetValues<ModuleCategory>().Select(category =>
         {
@@ -175,19 +175,32 @@ public class LearningPathPresentationService
 
     public async Task<AdminProgressAnalyticsViewModel> BuildAdminAnalyticsAsync()
     {
-        var students = await _context.Learners.AsNoTracking()
-            .Where(l => l.Role == LearnerRole.Student).Include(l => l.LearningProgress).ToListAsync();
+        var studentRoleId = await _context.Roles.AsNoTracking()
+            .Where(r => r.Name == LexoraRoles.Student)
+            .Select(r => r.Id)
+            .FirstOrDefaultAsync();
+
+        var studentIds = await _context.UserRoles.AsNoTracking()
+            .Where(ur => ur.RoleId == studentRoleId)
+            .Select(ur => ur.UserId)
+            .ToListAsync();
+
+        var students = await _context.Users.AsNoTracking()
+            .Include(u => u.LearningProgress)
+            .Where(u => studentIds.Contains(u.Id))
+            .ToListAsync();
+
         var attempts = await _context.LearningAttempts.AsNoTracking()
             .Include(a => a.QuizSet).ThenInclude(q => q.LearningModule).ToListAsync();
 
         var learnerSummaries = students.Select(s =>
         {
-            var learnerAttempts = attempts.Where(a => a.LearnerId == s.Id).ToList();
+            var learnerAttempts = attempts.Where(a => a.UserId == s.Id).ToList();
             return new AdminLearnerSummaryViewModel
             {
-                LearnerId = s.Id,
+                UserId = s.Id,
                 FullName = s.FullName,
-                Username = s.Username,
+                Username = s.UserName ?? "",
                 CurrentLevel = s.LearningProgress?.CurrentLevel ?? DifficultyLevel.Beginner,
                 CompletedModulesCount = s.LearningProgress?.CompletedModulesCount ?? 0,
                 AverageScore = learnerAttempts.Count == 0 ? 0 : Math.Round(learnerAttempts.Average(a => a.Score), 1)
@@ -214,10 +227,10 @@ public class LearningPathPresentationService
         };
     }
 
-    private async Task<PathBuildResult> BuildPathDataAsync(int learnerId)
+    private async Task<PathBuildResult> BuildPathDataAsync(string userId)
     {
         var progress = await _context.LearningProgresses.AsNoTracking()
-            .FirstOrDefaultAsync(p => p.LearnerId == learnerId);
+            .FirstOrDefaultAsync(p => p.UserId == userId);
 
         var currentLevel = progress?.CurrentLevel ?? DifficultyLevel.Beginner;
         var modules = await _context.LearningModules.AsNoTracking()
@@ -225,10 +238,10 @@ public class LearningPathPresentationService
             .OrderBy(m => m.DifficultyLevel).ThenBy(m => m.SortOrder).ThenBy(m => m.Title).ToListAsync();
 
         var attempts = await _context.LearningAttempts.AsNoTracking().Include(a => a.QuizSet)
-            .Where(a => a.LearnerId == learnerId).ToListAsync();
-        var completedModuleIds = await GetCompletedModuleIdsAsync(learnerId);
+            .Where(a => a.UserId == userId).ToListAsync();
+        var completedModuleIds = await GetCompletedModuleIdsAsync(userId);
         var moduleProgressList = await _context.ModuleProgresses.AsNoTracking()
-            .Where(p => p.LearnerId == learnerId).ToListAsync();
+            .Where(p => p.UserId == userId).ToListAsync();
 
         var averageScore = attempts.Count == 0 ? 0 : Math.Round(attempts.Average(a => a.Score), 1);
         var moduleScores = modules.ToDictionary(m => m.Id, m =>
@@ -319,13 +332,13 @@ public class LearningPathPresentationService
         };
     }
 
-    private async Task<HashSet<int>> GetCompletedModuleIdsAsync(int learnerId)
+    private async Task<HashSet<int>> GetCompletedModuleIdsAsync(string userId)
     {
         var fromAttempts = await _context.LearningAttempts.AsNoTracking().Include(a => a.QuizSet)
-            .Where(a => a.LearnerId == learnerId && a.Score >= 76)
+            .Where(a => a.UserId == userId && a.Score >= 76)
             .Select(a => a.QuizSet.LearningModuleId).Distinct().ToListAsync();
         var fromProgress = await _context.ModuleProgresses.AsNoTracking()
-            .Where(p => p.LearnerId == learnerId && p.IsCompleted)
+            .Where(p => p.UserId == userId && p.IsCompleted)
             .Select(p => p.LearningModuleId).ToListAsync();
         return fromAttempts.Union(fromProgress).ToHashSet();
     }

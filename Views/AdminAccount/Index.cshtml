@@ -1,0 +1,56 @@
+@model UserManagementIndexViewModel
+@using LexoraED.Models
+@{ ViewData["Title"] = "User Management"; }
+
+<form method="get" class="glass-card lex-filter-bar">
+    <input type="text" name="search" value="@Model.Search" placeholder="Search name, email, or username..." class="lex-form-input" style="flex:1;min-width:180px" />
+    <select name="role" class="lex-form-input">
+        <option value="">All roles</option>
+        @foreach (var r in LexoraRoles.All)
+        {
+            <option value="@r" selected="@(Model.RoleFilter == r)">@r</option>
+        }
+    </select>
+    <select name="status" class="lex-form-input">
+        <option value="">All statuses</option>
+        @foreach (AccountStatus s in Enum.GetValues<AccountStatus>())
+        {
+            <option value="@s" selected="@(Model.StatusFilter == s)">@s</option>
+        }
+    </select>
+    <button type="submit" class="lex-btn lex-btn-primary">Filter</button>
+    <a asp-action="CreateAdmin" class="lex-btn lex-btn-secondary">Create Admin</a>
+</form>
+
+<div class="lex-module-grid">
+    @foreach (var user in Model.Users)
+    {
+        <div class="glass-card lex-user-card">
+            <div>
+                <strong>@user.FullName</strong>
+                <div style="color:var(--lex-text-muted);font-size:0.85rem">@user.Username · @user.Email</div>
+                <div style="margin-top:0.5rem;display:flex;gap:0.5rem;flex-wrap:wrap">
+                    <span class="lex-role-badge lex-role-@user.Role.ToLower()">@user.Role</span>
+                    <span class="lex-status-@user.AccountStatus.ToString().ToLower()">@user.AccountStatus</span>
+                    <span class="@(user.IsActive ? "lex-status-active" : "lex-status-inactive")">
+                        @(user.IsActive ? "Active" : "Inactive")
+                    </span>
+                </div>
+            </div>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap">
+                <a asp-action="Details" asp-route-id="@user.Id" class="lex-btn lex-btn-ghost lex-btn-sm">Details</a>
+            </div>
+        </div>
+    }
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    <nav class="lex-pagination">
+        @for (var p = 1; p <= Model.TotalPages; p++)
+        {
+            <a asp-action="Index" asp-route-page="@p" asp-route-search="@Model.Search" asp-route-role="@Model.RoleFilter" asp-route-status="@Model.StatusFilter"
+               class="lex-btn lex-btn-sm @(p == Model.Page ? "lex-btn-primary" : "lex-btn-ghost")">@p</a>
+        }
+    </nav>
+}

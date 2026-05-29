@@ -1,6 +1,7 @@
 using LexoraED.Data;
 using LexoraED.Models;
 using LexoraED.ViewModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexoraED.Services;
@@ -8,24 +9,22 @@ namespace LexoraED.Services;
 public class TeacherInsightsService
 {
     private readonly LexoraEDContext _context;
+    private readonly UserManager<ApplicationUser> _userManager;
 
-    public TeacherInsightsService(LexoraEDContext context)
+    public TeacherInsightsService(LexoraEDContext context, UserManager<ApplicationUser> userManager)
     {
         _context = context;
+        _userManager = userManager;
     }
 
     public async Task<TeacherDashboardViewModel> BuildDashboardAsync()
     {
-        var students = await _context.Learners
-            .AsNoTracking()
-            .Where(l => l.Role == LearnerRole.Student && l.IsActive)
-            .Include(l => l.LearningProgress)
-            .ToListAsync();
+        var students = await GetStudentsAsync();
 
         var attempts = await _context.LearningAttempts
             .AsNoTracking()
             .Include(a => a.QuizSet).ThenInclude(q => q.LearningModule)
-            .Include(a => a.Learner)
+            .Include(a => a.User)
             .OrderByDescending(a => a.AttemptDate)
             .Take(50)
             .ToListAsync();
@@ -39,7 +38,6 @@ public class TeacherInsightsService
             .ToList();
 
         var weakest = categoryScores.FirstOrDefault();
-
         var totalModules = await _context.LearningModules.CountAsync();
         var completedProgress = await _context.ModuleProgresses.CountAsync(p => p.IsCompleted);
         var completionRate = students.Count == 0 || totalModules == 0
@@ -54,7 +52,7 @@ public class TeacherInsightsService
             LearningCompletionRate = completionRate,
             RecentActivity = attempts.Take(8).Select(a => new TeacherActivityItemViewModel
             {
-                StudentName = a.Learner.FullName,
+                StudentName = a.User.FullName,
                 ModuleTitle = a.QuizSet.LearningModule.Title,
                 Score = a.Score,
                 AttemptDate = a.AttemptDate
@@ -79,12 +77,7 @@ public class TeacherInsightsService
     public async Task<TeacherAnalyticsViewModel> BuildAnalyticsAsync()
     {
         var dashboard = await BuildDashboardAsync();
-        var students = await _context.Learners
-            .AsNoTracking()
-            .Where(l => l.Role == LearnerRole.Student)
-            .Include(l => l.LearningProgress)
-            .ToListAsync();
-
+        var students = await GetStudentsAsync();
         var attempts = await _context.LearningAttempts
             .AsNoTracking()
             .Include(a => a.QuizSet).ThenInclude(q => q.LearningModule)
@@ -92,7 +85,7 @@ public class TeacherInsightsService
 
         var summaries = students.Select(s =>
         {
-            var studentAttempts = attempts.Where(a => a.LearnerId == s.Id).ToList();
+            var studentAttempts = attempts.Where(a => a.UserId == s.Id).ToList();
             return new TeacherStudentSummaryViewModel
             {
                 StudentId = s.Id,
@@ -127,5 +120,15 @@ public class TeacherInsightsService
             StudentSummaries = summaries,
             WeakCategories = weakCategories
         };
+    }
+
+    private async Task<List<ApplicationUser>> GetStudentsAsync()
+    {
+        var users = await _userManager.GetUsersInRoleAsync(LexoraRoles.Student);
+        var ids = users.Select(u => u.Id).ToList();
+        return await _context.Users
+            .Where(u => ids.Contains(u.Id) && u.IsActive && u.AccountStatus == AccountStatus.Approved)
+            .Include(u => u.LearningProgress)
+            .ToListAsync();
     }
 }

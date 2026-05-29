@@ -1,0 +1,12 @@
+@{
+    ViewData["Title"] = "Access Denied";
+    Layout = "_AuthLayout";
+}
+
+<div class="lex-auth-card" style="text-align:center">
+    <h1>Access Denied</h1>
+    <p style="color: var(--lex-text-muted); margin: 1rem 0 1.5rem;">
+        You do not have permission to view this page, or your account is not active.
+    </p>
+    <a asp-action="Login" class="lex-btn lex-btn-primary">Sign In</a>
+</div>

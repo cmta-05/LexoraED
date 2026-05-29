@@ -2,6 +2,7 @@ using System.Text;
 using LexoraED.Data;
 using LexoraED.Models;
 using LexoraED.ViewModels;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexoraED.Services;
@@ -9,31 +10,35 @@ namespace LexoraED.Services;
 public class LexoraReportService
 {
     private readonly LexoraEDContext _context;
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly TeacherInsightsService _teacherInsights;
     private readonly LearningPathPresentationService _learningPath;
 
     public LexoraReportService(
         LexoraEDContext context,
+        UserManager<ApplicationUser> userManager,
         TeacherInsightsService teacherInsights,
         LearningPathPresentationService learningPath)
     {
         _context = context;
+        _userManager = userManager;
         _teacherInsights = teacherInsights;
         _learningPath = learningPath;
     }
 
-    public async Task<StudentReportViewModel> BuildStudentReportAsync(int learnerId, DateTime? from, DateTime? to)
+    public async Task<StudentReportViewModel> BuildStudentReportAsync(string userId, DateTime? from, DateTime? to)
     {
-        var learner = await _context.Learners.AsNoTracking().FirstAsync(l => l.Id == learnerId);
-        var analytics = await _learningPath.BuildStudentAnalyticsAsync(learnerId, learner.FullName);
+        var user = await _userManager.FindByIdAsync(userId)
+            ?? throw new InvalidOperationException("Student not found.");
+        var analytics = await _learningPath.BuildStudentAnalyticsAsync(userId, user.FullName);
         var badges = await _context.LearnerAchievements.AsNoTracking()
             .Include(a => a.AchievementBadge)
-            .Where(a => a.LearnerId == learnerId)
+            .Where(a => a.UserId == userId)
             .ToListAsync();
 
         var attemptsQuery = _context.LearningAttempts.AsNoTracking()
             .Include(a => a.QuizSet).ThenInclude(q => q.LearningModule)
-            .Where(a => a.LearnerId == learnerId);
+            .Where(a => a.UserId == userId);
 
         if (from.HasValue)
             attemptsQuery = attemptsQuery.Where(a => a.AttemptDate >= from.Value);
@@ -44,7 +49,7 @@ public class LexoraReportService
 
         return new StudentReportViewModel
         {
-            LearnerName = learner.FullName,
+            LearnerName = user.FullName,
             GeneratedAt = DateTime.Now,
             FromDate = from,
             ToDate = to,
@@ -73,21 +78,32 @@ public class LexoraReportService
 
     public async Task<AdminReportViewModel> BuildAdminReportAsync()
     {
-        var learners = await _context.Learners.AsNoTracking().ToListAsync();
         var attempts = await _context.LearningAttempts.AsNoTracking().ToListAsync();
         var modules = await _context.LearningModules.AsNoTracking().CountAsync();
+        var users = await _context.Users.AsNoTracking().ToListAsync();
+
+        var studentCount = 0;
+        var teacherCount = 0;
+        var adminCount = 0;
+        foreach (var user in users)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            if (roles.Contains(LexoraRoles.Student)) studentCount++;
+            if (roles.Contains(LexoraRoles.Teacher)) teacherCount++;
+            if (roles.Contains(LexoraRoles.Admin)) adminCount++;
+        }
 
         return new AdminReportViewModel
         {
             GeneratedAt = DateTime.Now,
-            TotalUsers = learners.Count,
-            TotalStudents = learners.Count(l => l.Role == LearnerRole.Student),
-            TotalTeachers = learners.Count(l => l.Role == LearnerRole.Teacher),
-            TotalAdmins = learners.Count(l => l.Role == LearnerRole.Admin),
+            TotalUsers = users.Count,
+            TotalStudents = studentCount,
+            TotalTeachers = teacherCount,
+            TotalAdmins = adminCount,
             TotalModules = modules,
             TotalQuizAttempts = attempts.Count,
             PlatformAverageScore = attempts.Count == 0 ? 0 : Math.Round(attempts.Average(a => a.Score), 1),
-            ActiveUsers = learners.Count(l => l.IsActive)
+            ActiveUsers = users.Count(u => u.IsActive)
         };
     }
 

@@ -154,7 +154,7 @@ public class AdminProgressAnalyticsViewModel
 
 public class AdminLearnerSummaryViewModel
 {
-    public int LearnerId { get; set; }
+    public string UserId { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
     public string Username { get; set; } = string.Empty;
     public DifficultyLevel CurrentLevel { get; set; }

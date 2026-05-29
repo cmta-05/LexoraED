@@ -1,0 +1,120 @@
+@model RegisterViewModel
+@{
+    ViewData["Title"] = "Register";
+    Layout = "_AuthLayout";
+    var isTeacher = Model.RegisterAs == LexoraRoles.Teacher;
+}
+
+<div class="lex-auth-card" style="max-width: 520px;">
+    <div class="lex-auth-brand">
+        <h1>Join LexoraED</h1>
+        <p style="color: var(--lex-text-muted); margin: 0.5rem 0 0;">Start your adaptive learning journey</p>
+    </div>
+    <form asp-action="Register" method="post" id="registerForm">
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="lex-alert lex-alert-error">
+                <div asp-validation-summary="All"></div>
+            </div>
+        }
+        <div class="lex-form-group">
+            <label asp-for="RegisterAs" class="lex-form-label"></label>
+            <select asp-for="RegisterAs" class="lex-form-input" id="registerRole">
+                <option value="@LexoraRoles.Student">Student</option>
+                <option value="@LexoraRoles.Teacher">Teacher</option>
+            </select>
+            <p class="lex-form-hint" style="font-size:0.8rem;color:var(--lex-text-muted);margin-top:0.35rem">
+                Admin accounts are created only by the system administrator.
+            </p>
+        </div>
+        <div class="lex-form-group">
+            <label asp-for="FullName" class="lex-form-label"></label>
+            <input asp-for="FullName" class="lex-form-input" />
+            <span asp-validation-for="FullName" class="lex-text-danger"></span>
+        </div>
+        <div class="lex-form-group">
+            <label asp-for="Email" class="lex-form-label"></label>
+            <input asp-for="Email" class="lex-form-input" type="email" autocomplete="email" />
+            <span asp-validation-for="Email" class="lex-text-danger"></span>
+        </div>
+        <div class="lex-form-group">
+            <label asp-for="Username" class="lex-form-label"></label>
+            <input asp-for="Username" class="lex-form-input" autocomplete="username" />
+            <span asp-validation-for="Username" class="lex-text-danger"></span>
+        </div>
+        <div id="studentFields" style="@(isTeacher ? "display:none" : "")">
+            <div class="lex-form-group">
+                <label asp-for="StudentIdNumber" class="lex-form-label"></label>
+                <input asp-for="StudentIdNumber" class="lex-form-input" />
+                <span asp-validation-for="StudentIdNumber" class="lex-text-danger"></span>
+            </div>
+            <div class="lex-form-group">
+                <label asp-for="LearningPreference" class="lex-form-label"></label>
+                <input asp-for="LearningPreference" class="lex-form-input" placeholder="e.g. Visual, balanced microlearning" />
+            </div>
+        </div>
+        <div id="teacherFields" style="@(isTeacher ? "" : "display:none")">
+            <div class="lex-form-group">
+                <label asp-for="TeacherIdNumber" class="lex-form-label"></label>
+                <input asp-for="TeacherIdNumber" class="lex-form-input" />
+                <span asp-validation-for="TeacherIdNumber" class="lex-text-danger"></span>
+            </div>
+            <div class="lex-form-group">
+                <label asp-for="SchoolName" class="lex-form-label"></label>
+                <input asp-for="SchoolName" class="lex-form-input" />
+                <span asp-validation-for="SchoolName" class="lex-text-danger"></span>
+            </div>
+            <div class="lex-form-group">
+                <label asp-for="Department" class="lex-form-label"></label>
+                <input asp-for="Department" class="lex-form-input" />
+                <span asp-validation-for="Department" class="lex-text-danger"></span>
+            </div>
+            <div class="lex-form-group">
+                <label asp-for="SubjectSpecialization" class="lex-form-label"></label>
+                <input asp-for="SubjectSpecialization" class="lex-form-input" />
+                <span asp-validation-for="SubjectSpecialization" class="lex-text-danger"></span>
+            </div>
+            <div class="lex-form-group">
+                <label asp-for="ContactNumber" class="lex-form-label"></label>
+                <input asp-for="ContactNumber" class="lex-form-input" type="tel" />
+                <span asp-validation-for="ContactNumber" class="lex-text-danger"></span>
+            </div>
+        </div>
+        <div class="lex-form-group">
+            <label asp-for="Password" class="lex-form-label"></label>
+            <div class="lex-password-wrap">
+                <input asp-for="Password" class="lex-form-input lex-password-input" autocomplete="new-password" />
+                <button type="button" class="lex-password-toggle" aria-label="Hold to show password" title="Hold to show password">
+                    <svg class="lex-eye-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+            </div>
+            <span asp-validation-for="Password" class="lex-text-danger"></span>
+        </div>
+        <div class="lex-form-group">
+            <label asp-for="ConfirmPassword" class="lex-form-label"></label>
+            <div class="lex-password-wrap">
+                <input asp-for="ConfirmPassword" class="lex-form-input lex-password-input" autocomplete="new-password" />
+                <button type="button" class="lex-password-toggle" aria-label="Hold to show password" title="Hold to show password">
+                    <svg class="lex-eye-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+            </div>
+            <span asp-validation-for="ConfirmPassword" class="lex-text-danger"></span>
+        </div>
+        <button type="submit" class="lex-btn lex-btn-primary lex-btn-block">Create Account</button>
+    </form>
+    <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem;">
+        <a asp-action="Login" style="color: var(--lex-violet-700); font-weight: 600;">Already have an account? Sign in</a>
+    </p>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/lexora-auth.js" asp-append-version="true"></script>
+    <script>
+        document.getElementById('registerRole')?.addEventListener('change', function () {
+            var isTeacher = this.value === '@LexoraRoles.Teacher';
+            document.getElementById('studentFields').style.display = isTeacher ? 'none' : '';
+            document.getElementById('teacherFields').style.display = isTeacher ? '' : 'none';
+        });
+    </script>
+}

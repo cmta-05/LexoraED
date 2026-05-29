@@ -21,7 +21,7 @@ public class AdaptiveLearningPathService
     }
 
     public async Task<PerformanceEvaluationResult> EvaluateLearnerPerformanceAsync(
-        int learnerId,
+        string userId,
         int quizSetId,
         int score)
     {
@@ -32,7 +32,7 @@ public class AdaptiveLearningPathService
 
         var attempt = new LearningAttempt
         {
-            LearnerId = learnerId,
+            UserId = userId,
             QuizSetId = quizSetId,
             Score = score,
             AttemptDate = DateTime.UtcNow
@@ -40,13 +40,13 @@ public class AdaptiveLearningPathService
         _context.LearningAttempts.Add(attempt);
 
         var progress = await _context.LearningProgresses
-            .FirstOrDefaultAsync(p => p.LearnerId == learnerId);
+            .FirstOrDefaultAsync(p => p.UserId == userId);
 
         if (progress == null)
         {
             progress = new LearningProgress
             {
-                LearnerId = learnerId,
+                UserId = userId,
                 CurrentLevel = DifficultyLevel.Beginner,
                 CompletedModulesCount = 0
             };
@@ -56,8 +56,8 @@ public class AdaptiveLearningPathService
         var recommendation = GetNextLearningPath(score, progress.CurrentLevel);
         var feedback = GenerateAdaptiveFeedback(score, recommendation.RecommendedLevel);
 
-        await UpdateModuleProgressAsync(learnerId, quizSet.LearningModuleId, score);
-        UnlockNextModule(learnerId, quizSet.LearningModuleId, score);
+        await UpdateModuleProgressAsync(userId, quizSet.LearningModuleId, score);
+        UnlockNextModule(userId, quizSet.LearningModuleId, score);
 
         if (score <= 50)
             progress.CurrentLevel = DifficultyLevel.Beginner;
@@ -72,13 +72,13 @@ public class AdaptiveLearningPathService
 
         progress.ExperiencePoints += score >= 76 ? 100 : score >= 51 ? 50 : 25;
         progress.LastActivityDate = DateTime.UtcNow;
-        progress.CurrentStreak = await CalculateStreakAsync(learnerId);
-        progress.RecommendedModuleId = await GetRecommendedModuleIdAsync(learnerId, progress.CurrentLevel);
+        progress.CurrentStreak = await CalculateStreakAsync(userId);
+        progress.RecommendedModuleId = await GetRecommendedModuleIdAsync(userId, progress.CurrentLevel);
 
         await _context.SaveChangesAsync();
 
-        await _gamificationService.ProcessQuizCompletionAsync(learnerId, score);
-        await _activityLogService.LogAsync(learnerId, "QuizCompleted",
+        await _gamificationService.ProcessQuizCompletionAsync(userId, score);
+        await _activityLogService.LogAsync(userId, "QuizCompleted",
             $"Scored {score}% on {quizSet.LearningModule.Title}");
 
         return new PerformanceEvaluationResult
@@ -146,13 +146,13 @@ public class AdaptiveLearningPathService
         };
     }
 
-    public async Task UnlockNextModuleAsync(int learnerId, int completedModuleId, int score)
+    public async Task UnlockNextModuleAsync(string userId, int completedModuleId, int score)
     {
-        UnlockNextModule(learnerId, completedModuleId, score);
+        UnlockNextModule(userId, completedModuleId, score);
         await _context.SaveChangesAsync();
     }
 
-    private void UnlockNextModule(int learnerId, int completedModuleId, int score)
+    private void UnlockNextModule(string userId, int completedModuleId, int score)
     {
         if (score < 76)
             return;
@@ -171,27 +171,27 @@ public class AdaptiveLearningPathService
             return;
 
         var mp = _context.ModuleProgresses
-            .FirstOrDefault(p => p.LearnerId == learnerId && p.LearningModuleId == next.Id);
+            .FirstOrDefault(p => p.UserId == userId && p.LearningModuleId == next.Id);
 
         if (mp == null)
         {
             _context.ModuleProgresses.Add(new ModuleProgress
             {
-                LearnerId = learnerId,
+                UserId = userId,
                 LearningModuleId = next.Id,
                 LastAccessedAt = DateTime.UtcNow
             });
         }
     }
 
-    private async Task UpdateModuleProgressAsync(int learnerId, int moduleId, int score)
+    private async Task UpdateModuleProgressAsync(string userId, int moduleId, int score)
     {
         var mp = await _context.ModuleProgresses
-            .FirstOrDefaultAsync(p => p.LearnerId == learnerId && p.LearningModuleId == moduleId);
+            .FirstOrDefaultAsync(p => p.UserId == userId && p.LearningModuleId == moduleId);
 
         if (mp == null)
         {
-            mp = new ModuleProgress { LearnerId = learnerId, LearningModuleId = moduleId };
+            mp = new ModuleProgress { UserId = userId, LearningModuleId = moduleId };
             _context.ModuleProgresses.Add(mp);
         }
 
@@ -204,10 +204,10 @@ public class AdaptiveLearningPathService
         }
     }
 
-    private async Task<int?> GetRecommendedModuleIdAsync(int learnerId, DifficultyLevel level)
+    private async Task<int?> GetRecommendedModuleIdAsync(string userId, DifficultyLevel level)
     {
         var completedIds = await _context.ModuleProgresses
-            .Where(p => p.LearnerId == learnerId && p.IsCompleted)
+            .Where(p => p.UserId == userId && p.IsCompleted)
             .Select(p => p.LearningModuleId)
             .ToListAsync();
 
@@ -218,10 +218,10 @@ public class AdaptiveLearningPathService
             .FirstOrDefaultAsync();
     }
 
-    private async Task<int> CalculateStreakAsync(int learnerId)
+    private async Task<int> CalculateStreakAsync(string userId)
     {
         var dates = await _context.LearningAttempts
-            .Where(a => a.LearnerId == learnerId)
+            .Where(a => a.UserId == userId)
             .Select(a => a.AttemptDate.Date)
             .Distinct()
             .OrderByDescending(d => d)
@@ -243,11 +243,11 @@ public class AdaptiveLearningPathService
         return streak;
     }
 
-    public async Task<List<LearningModule>> GetRecommendedModulesAsync(int learnerId)
+    public async Task<List<LearningModule>> GetRecommendedModulesAsync(string userId)
     {
         var progress = await _context.LearningProgresses
             .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.LearnerId == learnerId);
+            .FirstOrDefaultAsync(p => p.UserId == userId);
 
         var targetLevel = progress?.CurrentLevel ?? DifficultyLevel.Beginner;
 

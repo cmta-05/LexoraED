@@ -1,11 +1,13 @@
 using LexoraED.Filters;
 using LexoraED.Models;
 using LexoraED.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LexoraED.Controllers;
 
-[RequireLearnerRole(LearnerRole.Teacher)]
+[Authorize(Roles = LexoraRoles.Teacher)]
+[RequireApprovedTeacher]
 public class TeacherDashboardController : Controller
 {
     private readonly TeacherInsightsService _teacherInsights;

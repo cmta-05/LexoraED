@@ -1,14 +1,14 @@
 using LexoraED.Data;
-using LexoraED.Filters;
 using LexoraED.Models;
 using LexoraED.Services;
 using LexoraED.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexoraED.Controllers;
 
-[RequireLearnerRole(LearnerRole.Admin)]
+[Authorize(Roles = LexoraRoles.Admin)]
 public class AdminLearningModuleController : Controller
 {
     private readonly LexoraEDContext _context;

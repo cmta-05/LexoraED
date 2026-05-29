@@ -1,0 +1,54 @@
+@model AdminCreateViewModel
+@{ ViewData["Title"] = "Create Admin"; }
+
+<div class="glass-card" style="padding:1.5rem;max-width:480px">
+    <h2 style="margin-top:0">Create Administrator</h2>
+    <p style="color:var(--lex-text-muted);font-size:0.9rem">Admin accounts are not available on public registration.</p>
+    <form asp-action="CreateAdmin" method="post">
+        <div asp-validation-summary="All" class="lex-alert lex-alert-error"></div>
+        <div class="lex-form-group">
+            <label asp-for="FullName" class="lex-form-label"></label>
+            <input asp-for="FullName" class="lex-form-input" />
+            <span asp-validation-for="FullName" class="lex-text-danger"></span>
+        </div>
+        <div class="lex-form-group">
+            <label asp-for="Email" class="lex-form-label"></label>
+            <input asp-for="Email" class="lex-form-input" />
+            <span asp-validation-for="Email" class="lex-text-danger"></span>
+        </div>
+        <div class="lex-form-group">
+            <label asp-for="Username" class="lex-form-label"></label>
+            <input asp-for="Username" class="lex-form-input" />
+            <span asp-validation-for="Username" class="lex-text-danger"></span>
+        </div>
+        <div class="lex-form-group">
+            <label asp-for="Password" class="lex-form-label"></label>
+            <div class="lex-password-wrap">
+                <input asp-for="Password" class="lex-form-input lex-password-input" />
+                <button type="button" class="lex-password-toggle" aria-label="Hold to show password" title="Hold to show password">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+            </div>
+            <span asp-validation-for="Password" class="lex-text-danger"></span>
+        </div>
+        <div class="lex-form-group">
+            <label asp-for="ConfirmPassword" class="lex-form-label"></label>
+            <div class="lex-password-wrap">
+                <input asp-for="ConfirmPassword" class="lex-form-input lex-password-input" />
+                <button type="button" class="lex-password-toggle" aria-label="Hold to show password" title="Hold to show password">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+            </div>
+            <span asp-validation-for="ConfirmPassword" class="lex-text-danger"></span>
+        </div>
+        <div style="display:flex;gap:0.5rem;margin-top:1rem">
+            <button type="submit" class="lex-btn lex-btn-primary">Create Admin</button>
+            <a asp-action="Index" class="lex-btn lex-btn-ghost">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/lexora-auth.js" asp-append-version="true"></script>
+}

@@ -13,60 +13,60 @@ public class GamificationService
         _context = context;
     }
 
-    public async Task ProcessQuizCompletionAsync(int learnerId, int score)
+    public async Task ProcessQuizCompletionAsync(string userId, int score)
     {
         await EnsureBadgesExistAsync();
 
         if (score == 100)
-            await AwardBadgeAsync(learnerId, "PERFECT_SCORE");
+            await AwardBadgeAsync(userId, "PERFECT_SCORE");
 
         if (score >= 76)
-            await AwardBadgeAsync(learnerId, "MODULE_MASTER");
+            await AwardBadgeAsync(userId, "MODULE_MASTER");
 
-        var attemptCount = await _context.LearningAttempts.CountAsync(a => a.LearnerId == learnerId);
+        var attemptCount = await _context.LearningAttempts.CountAsync(a => a.UserId == userId);
         if (attemptCount >= 5)
-            await AwardBadgeAsync(learnerId, "QUIZ_STREAK_5");
+            await AwardBadgeAsync(userId, "QUIZ_STREAK_5");
 
         var grammarAttempts = await _context.LearningAttempts
             .Include(a => a.QuizSet).ThenInclude(q => q.LearningModule)
-            .CountAsync(a => a.LearnerId == learnerId &&
+            .CountAsync(a => a.UserId == userId &&
                              a.QuizSet.LearningModule.Category == ModuleCategory.Grammar &&
                              a.Score >= 76);
 
         if (grammarAttempts >= 2)
-            await AwardBadgeAsync(learnerId, "GRAMMAR_BEGINNER");
+            await AwardBadgeAsync(userId, "GRAMMAR_BEGINNER");
     }
 
-    public async Task<List<LearnerAchievement>> GetLearnerBadgesAsync(int learnerId)
+    public async Task<List<LearnerAchievement>> GetLearnerBadgesAsync(string userId)
     {
         return await _context.LearnerAchievements
             .AsNoTracking()
             .Include(a => a.AchievementBadge)
-            .Where(a => a.LearnerId == learnerId)
+            .Where(a => a.UserId == userId)
             .OrderByDescending(a => a.EarnedAt)
             .ToListAsync();
     }
 
-    private async Task AwardBadgeAsync(int learnerId, string code)
+    private async Task AwardBadgeAsync(string userId, string code)
     {
         var badge = await _context.AchievementBadges.FirstOrDefaultAsync(b => b.Code == code);
         if (badge == null)
             return;
 
         var exists = await _context.LearnerAchievements
-            .AnyAsync(a => a.LearnerId == learnerId && a.AchievementBadgeId == badge.Id);
+            .AnyAsync(a => a.UserId == userId && a.AchievementBadgeId == badge.Id);
 
         if (exists)
             return;
 
         _context.LearnerAchievements.Add(new LearnerAchievement
         {
-            LearnerId = learnerId,
+            UserId = userId,
             AchievementBadgeId = badge.Id,
             EarnedAt = DateTime.UtcNow
         });
 
-        var progress = await _context.LearningProgresses.FirstOrDefaultAsync(p => p.LearnerId == learnerId);
+        var progress = await _context.LearningProgresses.FirstOrDefaultAsync(p => p.UserId == userId);
         if (progress != null)
             progress.ExperiencePoints += badge.PointsAwarded;
 

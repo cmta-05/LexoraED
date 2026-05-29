@@ -1,7 +1,0 @@
-@model LearnerFormViewModel
-<div asp-validation-summary="All" class="lex-alert lex-alert-error"></div>
-<div class="lex-form-group"><label asp-for="FullName" class="lex-form-label"></label><input asp-for="FullName" class="lex-form-input" /><span asp-validation-for="FullName" class="lex-text-danger"></span></div>
-<div class="lex-form-group"><label asp-for="Username" class="lex-form-label"></label><input asp-for="Username" class="lex-form-input" /><span asp-validation-for="Username" class="lex-text-danger"></span></div>
-<div class="lex-form-group"><label asp-for="Password" class="lex-form-label"></label><input asp-for="Password" class="lex-form-input" /><span asp-validation-for="Password" class="lex-text-danger"></span></div>
-<div class="lex-form-group"><label asp-for="Role" class="lex-form-label"></label><select asp-for="Role" class="lex-form-input" asp-items="Html.GetEnumSelectList<LearnerRole>()"></select></div>
-<div class="lex-form-group"><label class="lex-form-label"><input asp-for="IsActive" /> Active account</label></div>

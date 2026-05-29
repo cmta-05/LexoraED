@@ -77,6 +77,27 @@ public class QuizAnswerReviewViewModel
     public QuizQuestionType QuestionType { get; set; }
 }
 
+public class QuizItemFormViewModel
+{
+    public int QuizSetId { get; set; }
+
+    [Required]
+    public QuizQuestionType QuestionType { get; set; }
+
+    [Required]
+    public string QuestionText { get; set; } = string.Empty;
+
+    public string? ChoiceA { get; set; }
+    public string? ChoiceB { get; set; }
+    public string? ChoiceC { get; set; }
+    public string? ChoiceD { get; set; }
+
+    [Required]
+    public string CorrectAnswer { get; set; } = string.Empty;
+
+    public string? Explanation { get; set; }
+}
+
 public class StudentDashboardViewModel
 {
     public string LearnerName { get; set; } = string.Empty;

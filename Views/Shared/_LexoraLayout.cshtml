@@ -1,13 +1,12 @@
 @using LexoraED.Models
-@using LexoraED.Services
 @{
-    var learnerId = Context.Session.GetInt32(LearnerSessionKeys.LearnerId);
-    var role = Context.Session.GetString(LearnerSessionKeys.LearnerRole);
-    var fullName = Context.Session.GetString(LearnerSessionKeys.LearnerFullName) ?? "Learner";
-    var isAdmin = role == LearnerRole.Admin.ToString();
-    var isTeacher = role == LearnerRole.Teacher.ToString();
-    var isStudent = role == LearnerRole.Student.ToString();
-    var initials = string.Join("", fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => w[0])).ToUpper();
+    var fullName = User.Identity?.IsAuthenticated == true
+        ? (User.FindFirst("FullName")?.Value ?? User.Identity?.Name ?? "User")
+        : "Guest";
+    var isAdmin = User.IsInRole(LexoraRoles.Admin);
+    var isTeacher = User.IsInRole(LexoraRoles.Teacher);
+    var isStudent = User.IsInRole(LexoraRoles.Student);
+    var initials = string.Join("", fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => w.Length > 0 ? w[0].ToString() : "")).ToUpper();
     if (string.IsNullOrEmpty(initials)) { initials = "L"; }
     var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
@@ -31,7 +30,7 @@
         <ul class="lex-nav">
             @if (isAdmin)
             {
-                <li class="lex-nav-item"><a class="lex-nav-link @(controller == "AdminLearnerManagement" ? "active" : "")" asp-controller="AdminLearnerManagement" asp-action="Index">User Management</a></li>
+                <li class="lex-nav-item"><a class="lex-nav-link @(controller == "AdminAccount" ? "active" : "")" asp-controller="AdminAccount" asp-action="Index">User Management</a></li>
                 <li class="lex-nav-item"><a class="lex-nav-link @(controller == "AdminLearningModule" ? "active" : "")" asp-controller="AdminLearningModule" asp-action="Index">Learning Modules</a></li>
                 <li class="lex-nav-item"><a class="lex-nav-link @(controller == "AdminLearningModule" && action == "ProgressAnalytics" ? "active" : "")" asp-controller="AdminLearningModule" asp-action="ProgressAnalytics">Analytics</a></li>
                 <li class="lex-nav-item"><a class="lex-nav-link @(controller == "LexoraReports" ? "active" : "")" asp-controller="LexoraReports" asp-action="AdminReport">Reports</a></li>
@@ -55,7 +54,7 @@
             }
         </ul>
         <div class="lex-sidebar-footer">
-            <form asp-controller="LearnerAccess" asp-action="Logout" method="post">
+            <form asp-controller="Account" asp-action="Logout" method="post">
                 @Html.AntiForgeryToken()
                 <button type="submit" class="lex-btn lex-btn-ghost lex-btn-block lex-signout">Sign Out</button>
             </form>

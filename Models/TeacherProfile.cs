@@ -3,9 +3,12 @@ namespace LexoraED.Models;
 public class TeacherProfile
 {
     public int Id { get; set; }
-    public int LearnerId { get; set; }
-    public string Department { get; set; } = "English Education";
-    public string Specialization { get; set; } = "Microlearning Instruction";
+    public string UserId { get; set; } = string.Empty;
+    public string TeacherIdNumber { get; set; } = string.Empty;
+    public string SchoolName { get; set; } = string.Empty;
+    public string Department { get; set; } = string.Empty;
+    public string SubjectSpecialization { get; set; } = string.Empty;
+    public string ContactNumber { get; set; } = string.Empty;
 
-    public Learner Learner { get; set; } = null!;
+    public ApplicationUser User { get; set; } = null!;
 }

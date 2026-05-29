@@ -2,12 +2,14 @@ using LexoraED.Data;
 using LexoraED.Filters;
 using LexoraED.Models;
 using LexoraED.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexoraED.Controllers;
 
-[RequireLearnerRole(LearnerRole.Teacher, LearnerRole.Admin)]
+[Authorize(Roles = $"{LexoraRoles.Teacher},{LexoraRoles.Admin}")]
+[RequireApprovedTeacher]
 public class TeacherQuizManagementController : Controller
 {
     private readonly LexoraEDContext _context;

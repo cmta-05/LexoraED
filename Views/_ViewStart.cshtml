@@ -1,6 +1,6 @@
-﻿@{
+@{
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
-    Layout = controller == "LearnerAccess"
+    Layout = controller == "Account"
         ? "_AuthLayout"
         : "_LexoraLayout";
 }

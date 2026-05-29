@@ -1,14 +1,15 @@
+using System.Security.Claims;
 using LexoraED.Data;
-using LexoraED.Filters;
 using LexoraED.Models;
 using LexoraED.Services;
 using LexoraED.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace LexoraED.Controllers;
 
-[RequireLearnerRole(LearnerRole.Student)]
+[Authorize(Roles = LexoraRoles.Student)]
 public class QuizAssessmentController : Controller
 {
     private readonly LexoraEDContext _context;
@@ -28,20 +29,17 @@ public class QuizAssessmentController : Controller
         _quizScoringService = quizScoringService;
     }
 
+    private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
     public async Task<IActionResult> QuizCenter()
     {
-        var learnerId = HttpContext.Session.GetInt32(LearnerSessionKeys.LearnerId)!.Value;
-        return View(await _learningPathPresentation.BuildQuizCenterAsync(learnerId));
+        return View(await _learningPathPresentation.BuildQuizCenterAsync(UserId));
     }
 
     public async Task<IActionResult> TakeQuiz(int moduleId)
     {
-        var learnerId = HttpContext.Session.GetInt32(LearnerSessionKeys.LearnerId)!.Value;
-        var studyModule = await _learningPathPresentation.BuildStudyModuleAsync(learnerId, moduleId);
-
-        if (studyModule == null)
-            return NotFound();
-
+        var studyModule = await _learningPathPresentation.BuildStudyModuleAsync(UserId, moduleId);
+        if (studyModule == null) return NotFound();
         if (studyModule.IsLocked)
         {
             TempData["LexoraMessage"] = "This quiz is locked until you advance your learning path.";
@@ -60,7 +58,7 @@ public class QuizAssessmentController : Controller
             return RedirectToAction("StudyModule", "StudentLearning", new { id = moduleId });
         }
 
-        var model = new QuizSubmissionViewModel
+        return View(new QuizSubmissionViewModel
         {
             QuizSetId = quizSet.Id,
             ModuleId = moduleId,
@@ -75,51 +73,37 @@ public class QuizAssessmentController : Controller
                 ChoiceC = item.ChoiceC,
                 ChoiceD = item.ChoiceD
             }).ToList()
-        };
-
-        return View(model);
+        });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> SubmitQuiz(QuizSubmissionViewModel model)
     {
-        var learnerId = HttpContext.Session.GetInt32(LearnerSessionKeys.LearnerId)!.Value;
+        var quizItems = await _context.QuizItems.AsNoTracking()
+            .Where(q => q.QuizSetId == model.QuizSetId).ToListAsync();
 
-        var quizItems = await _context.QuizItems
-            .AsNoTracking()
-            .Where(q => q.QuizSetId == model.QuizSetId)
-            .ToListAsync();
+        if (!quizItems.Any()) return NotFound();
 
-        if (!quizItems.Any())
-            return NotFound();
-
-        if (model.Answers == null || model.Answers.Count != quizItems.Count)
-        {
-            ModelState.AddModelError(string.Empty, "Invalid quiz submission. Please try again.");
-            return await RetakeQuizView(model);
-        }
-
-        if (model.Answers.Any(a => string.IsNullOrWhiteSpace(a.SelectedAnswer)))
+        if (model.Answers == null || model.Answers.Count != quizItems.Count ||
+            model.Answers.Any(a => string.IsNullOrWhiteSpace(a.SelectedAnswer)))
         {
             ModelState.AddModelError(string.Empty, "Please answer all questions before submitting.");
-            return await RetakeQuizView(model);
+            return View("TakeQuiz", model);
         }
 
         var reviews = new List<QuizAnswerReviewViewModel>();
         var correctCount = 0;
-
         foreach (var answer in model.Answers)
         {
             var item = quizItems.First(q => q.Id == answer.QuizItemId);
             var isCorrect = _quizScoringService.IsAnswerCorrect(item, answer.SelectedAnswer);
             if (isCorrect) correctCount++;
-
             reviews.Add(new QuizAnswerReviewViewModel
             {
                 QuestionText = item.QuestionText,
                 SelectedAnswer = answer.SelectedAnswer,
-                CorrectAnswer = FormatCorrectDisplay(item),
+                CorrectAnswer = item.CorrectAnswer,
                 IsCorrect = isCorrect,
                 Explanation = item.Explanation,
                 QuestionType = item.QuestionType
@@ -127,10 +111,7 @@ public class QuizAssessmentController : Controller
         }
 
         var score = (int)Math.Round((double)correctCount / quizItems.Count * 100);
-
-        var evaluation = await _adaptiveLearningPathService.EvaluateLearnerPerformanceAsync(
-            learnerId, model.QuizSetId, score);
-
+        var evaluation = await _adaptiveLearningPathService.EvaluateLearnerPerformanceAsync(UserId, model.QuizSetId, score);
         var (tier, headline) = QuizFeedbackHelper.GetFeedback(score);
 
         var module = await _context.QuizSets.AsNoTracking()
@@ -155,23 +136,5 @@ public class QuizAssessmentController : Controller
             ModuleTitle = module?.Title ?? model.ModuleTitle,
             AnswerReviews = reviews
         });
-    }
-
-    private static string FormatCorrectDisplay(QuizItem item) => item.QuestionType switch
-    {
-        QuizQuestionType.MultipleChoice => $"Choice {item.CorrectAnswer}",
-        QuizQuestionType.TrueFalse => item.CorrectAnswer,
-        _ => item.CorrectAnswer
-    };
-
-    private async Task<IActionResult> RetakeQuizView(QuizSubmissionViewModel model)
-    {
-        if (string.IsNullOrEmpty(model.ModuleTitle) && model.ModuleId > 0)
-        {
-            var module = await _context.LearningModules.AsNoTracking()
-                .FirstOrDefaultAsync(m => m.Id == model.ModuleId);
-            model.ModuleTitle = module?.Title ?? "Quiz";
-        }
-        return View("TakeQuiz", model);
     }
 }

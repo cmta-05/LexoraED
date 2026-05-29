@@ -1,0 +1,52 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Sign In";
+    Layout = "_AuthLayout";
+}
+
+<div class="lex-auth-card">
+    <div class="lex-auth-brand">
+        <h1>LexoraED</h1>
+        <p style="color: var(--lex-text-muted); margin: 0.5rem 0 0;">Microlearning for English mastery</p>
+    </div>
+    <form asp-action="Login" method="post">
+        <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="lex-alert lex-alert-error">
+                <div asp-validation-summary="All"></div>
+            </div>
+        }
+        <div class="lex-form-group">
+            <label asp-for="LoginInput" class="lex-form-label"></label>
+            <input asp-for="LoginInput" class="lex-form-input" placeholder="Username or email" autocomplete="username" />
+            <span asp-validation-for="LoginInput" class="lex-text-danger"></span>
+        </div>
+        <div class="lex-form-group">
+            <label asp-for="Password" class="lex-form-label"></label>
+            <div class="lex-password-wrap">
+                <input asp-for="Password" class="lex-form-input lex-password-input" placeholder="••••••••" autocomplete="current-password" />
+                <button type="button" class="lex-password-toggle" aria-label="Hold to show password" title="Hold to show password">
+                    <svg class="lex-eye-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+            </div>
+            <span asp-validation-for="Password" class="lex-text-danger"></span>
+        </div>
+        <div class="lex-form-group" style="display:flex;align-items:center;gap:0.5rem">
+            <input asp-for="RememberMe" type="checkbox" />
+            <label asp-for="RememberMe" class="lex-form-label" style="margin:0"></label>
+        </div>
+        <button type="submit" class="lex-btn lex-btn-primary lex-btn-block" style="margin-top: 0.5rem;">Sign In</button>
+    </form>
+    <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--lex-text-muted);">
+        New learner? <a asp-action="Register" style="color: var(--lex-violet-700); font-weight: 600;">Create account</a>
+    </p>
+    <p style="text-align: center; margin-top: 1rem; font-size: 0.75rem; color: var(--lex-text-muted);">
+        Demo: student / Student@123 · teacher / Teacher@123 · admin / Admin@123
+    </p>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/lexora-auth.js" asp-append-version="true"></script>
+}

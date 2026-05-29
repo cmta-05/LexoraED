@@ -1,0 +1,18 @@
+@{
+    ViewData["Title"] = "Pending Approval";
+    Layout = "_AuthLayout";
+}
+
+<div class="lex-auth-card" style="text-align:center">
+    <div class="lex-auth-brand">
+        <h1>Waiting for admin approval.</h1>
+        <p style="color: var(--lex-text-muted); margin: 1rem 0 1.5rem;">
+            Your teacher account has been submitted. An administrator will review your registration before you can access teacher features.
+        </p>
+        @if (TempData["LexoraMessage"] != null)
+        {
+            <div class="lex-alert lex-alert-info">@TempData["LexoraMessage"]</div>
+        }
+        <a asp-action="Login" class="lex-btn lex-btn-primary">Return to Sign In</a>
+    </div>
+</div>

@@ -12,11 +12,11 @@ public class ActivityLogService
         _context = context;
     }
 
-    public async Task LogAsync(int learnerId, string activityType, string description)
+    public async Task LogAsync(string userId, string activityType, string description)
     {
         _context.ActivityLogs.Add(new ActivityLog
         {
-            LearnerId = learnerId,
+            UserId = userId,
             ActivityType = activityType,
             Description = description,
             LoggedAt = DateTime.UtcNow
